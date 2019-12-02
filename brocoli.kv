@@ -1,0 +1,97 @@
+#:kivy 1.11.1
+
+<MainWidget>:
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+
+        Brocoli:
+            id: brocoli
+            size_hint: (0.7, 1)
+            image: image
+            # Thanks the automatic binding
+            steps: int(2 ** steps_slider.value)
+            kind: kind_slider.value
+            pixel_size: pixel_slider.value
+            loop_gradient: loop_checkbox.active
+            gradient_speed: gradient_speed_slider.value
+            gradient_offset: gradient_offset_slider.value
+            black_inside: black_inside_checkbox.active
+            smooth_high_steps: smooth_high_slider.value
+            Image:
+                id: image
+                pos: self.parent.pos
+                size: self.parent.size
+                source: "frac.png"
+                allow_stretch: True
+                mipmap: True
+
+        GridLayout:
+            size_hint: (0.3, 1)
+            cols: 2
+
+            Label:
+                text: "Pixel size ({})".format(pixel_slider.value)
+            Slider:
+                id: pixel_slider
+                min: 1
+                max: 10
+                step: 1
+                value: 1
+
+            Label:
+                text: "Steps ({})".format(brocoli.steps)
+            Slider:
+                id: steps_slider
+                min: 5
+                max: 14
+                step: 1
+
+            Label:
+                text: "Coloration kind"
+            Slider:
+                id: kind_slider
+                min: 0
+                max: 3
+                step: 1
+                value: 1
+
+            Label:
+                text: "Loop gradient ?"
+            CheckBox:
+                id: loop_checkbox
+                active: True
+
+            Label:
+                text: "Gradient speed ({:.2})".format(gradient_speed_slider.value)
+            Slider:
+                id: gradient_speed_slider
+                min: 1.0
+                max: 10.0
+
+            Label:
+                text: "Gradient offset ({:.2})".format(gradient_offset_slider.value)
+            Slider:
+                id: gradient_offset_slider
+                min: 0.0
+                max: 1.0
+
+            Label:
+                text: "Black inside ?"
+            CheckBox:
+                id: black_inside_checkbox
+
+            Label:
+                text: "Smooth high steps ({:.2})".format(smooth_high_slider.value)
+            Slider:
+                id: smooth_high_slider
+                min: 0.0
+                max: 1.0
+                value: 0.95
+
+            Button:
+                id: random_position
+                text: "Random position"
+                on_release: brocoli.set_random_position()
+
+
