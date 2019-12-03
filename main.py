@@ -6,7 +6,8 @@ from os import path
 import numpy as np
 from PIL import Image
 from kivy.app import App
-from kivy.properties import NumericProperty, ObjectProperty, BooleanProperty, ReferenceListProperty
+from kivy.properties import NumericProperty, StringProperty, ObjectProperty, BooleanProperty, ReferenceListProperty
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image as KivyImage
 from kivy.uix.widget import Widget
 
@@ -19,6 +20,15 @@ from compute import compute, random_position
 def hsv_to_RGB(h, s, v):
     r, g, b = hsv_to_rgb(h, s, v)
     return int(255 * r), int(255 * g), int(255 * b)
+
+
+class LabeledSlider(BoxLayout):
+    min = NumericProperty()
+    max = NumericProperty()
+    default = NumericProperty()
+    value = NumericProperty()
+    text = StringProperty()
+    step = NumericProperty()
 
 
 class Brocoli(Widget):
