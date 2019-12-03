@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-
+from colorsys import hsv_to_rgb
+from datetime import datetime
+from os import path
 
 import numpy as np
 from PIL import Image
@@ -14,6 +16,11 @@ from colors import gradient
 from compute import compute, random_position
 
 
+def hsv_to_RGB(h, s, v):
+    r, g, b = hsv_to_rgb(h, s, v)
+    return int(255 * r), int(255 * g), int(255 * b)
+
+
 class Brocoli(Widget):
     # Camera
     camera = SimpleCamera((10, 10), -0.75, 2)
@@ -25,7 +32,7 @@ class Brocoli(Widget):
     gradient_speed = NumericProperty(1)
     gradient_offset = NumericProperty(0)
     black_inside = BooleanProperty(True)
-    smooth_high_steps = NumericProperty(1)
+    smooth_high_steps = NumericProperty(0)
 
     fractal = ObjectProperty(force_dispatch=True)
     image = ObjectProperty(None)  # type: KivyImage
@@ -43,6 +50,8 @@ class Brocoli(Widget):
         self._need_compute = False
         self.pause()
 
+        # TODO: make it a property
+        self.gradient = list(gradient(*"D3AD2B D02C22 223336 326C67 187C25".split(), loop=self.loop_gradient))
         self.camera.bind(any=self.on_camera)
         self.bind(steps=self.on_camera, kind=self.on_camera)
         self.bind(pixel_size=self.on_size)
@@ -58,6 +67,12 @@ class Brocoli(Widget):
 
     def on_camera(self, *args):
         self.recompute()
+
+    def on_loop_gradient(self, *args):
+        # self.gradient = list(gradient(*"D3AD2B D02C22 223336 326C67 187C25".split(), loop=self.loop_gradient))
+        # self.gradient = [hsv_to_RGB(h / 1000, 1 , 1) for h in range(1000)]
+        # self.gradient = list(gradient(*"39624D 63A26E C6B070 E47735 A62413".split(), loop=self.loop_gradient))
+        self.gradient = list(gradient(*"39624D 63A26E CABF40 FFCB00 F25615".split(), loop=self.loop_gradient))
 
     def recompute(self):
         if self._pause:
@@ -89,13 +104,12 @@ class Brocoli(Widget):
         if self.fractal is None:
             return
 
-        fractal = self.get_smoothed_high_steps()  # if needed
+        # fractal = self.get_smoothed_high_steps()  # if needed
 
         # grad = list(gradient('#0F4152', '#59A07B', '#F7E491', '#EDB825', '#EB3615', loop=self.loop_gradient))
         # grad = list(gradient('#7d451b', '#78bc61', '#e3d26f', '#e3d26f', loop=self.loop_gradient))
-        grad = list(gradient(*"D3AD2B D02C22 223336 326C67 187C25".split(), loop=self.loop_gradient))
 
-        image = apply_gradient(fractal, grad, self.gradient_speed, self.gradient_offset)
+        image = apply_gradient(self.fractal, self.gradient, self.gradient_speed, self.gradient_offset)
 
         if self.black_inside:
             image[self.fractal >= self.steps] = (0, 0, 0)
@@ -117,6 +131,26 @@ class Brocoli(Widget):
         self.camera.center = new_camera.center
         self.camera.height = new_camera.height
         self.resume()
+
+    def save_4k(self):
+        def4k = 3840, 2160
+
+        surf = np.empty(def4k)
+        camera = SimpleCamera(def4k, self.camera.center, self.camera.height)
+
+        print("Computing 4K fractal", camera, "steps:", self.steps)
+        compute(surf, camera.bottomleft, camera.step, self.steps, self.kind)
+
+        print("Coloring 4K fractal.")
+        image = apply_gradient(surf, self.gradient, self.gradient_speed, self.gradient_offset)
+
+        if self.black_inside:
+            image[surf >= self.steps] = (0, 0, 0)
+
+        image = Image.fromarray(image.swapaxes(0, 1), mode='RGB')
+
+        name = datetime.now().strftime("%Y-%m-%d %Hh%Mm%S fractal 4k.png")
+        image.save(path.join('out', name))
 
     def pause(self):
         """

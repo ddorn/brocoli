@@ -17,7 +17,7 @@
             gradient_speed: gradient_speed_slider.value
             gradient_offset: gradient_offset_slider.value
             black_inside: black_inside_checkbox.active
-            smooth_high_steps: smooth_high_slider.value
+#            smooth_high_steps: smooth_high_slider.value
             Image:
                 id: image
                 pos: self.parent.pos
@@ -81,17 +81,21 @@
             CheckBox:
                 id: black_inside_checkbox
 
-            Label:
-                text: "Smooth high steps ({:.2})".format(smooth_high_slider.value)
-            Slider:
-                id: smooth_high_slider
-                min: 0.0
-                max: 1.0
-                value: 0.95
+#            Label:
+#                text: "Smooth high steps ({:.2})".format(smooth_high_slider.value)
+#            Slider:
+#                id: smooth_high_slider
+#                min: 0.0
+#                max: 1.0
+#                value: 0.95
 
             Button:
-                id: random_position
                 text: "Random position"
                 on_release: brocoli.set_random_position()
+
+            Button:
+                id: save_buttom
+                text: "Save 4K image"
+                on_release: brocoli.save_4k()
 
 

@@ -96,12 +96,12 @@ def escape_smoothfire(c, limit=50, f=f):
 
 def random_position():
     size = (50, 50)
-    limits = 50
+    limits = 100
 
-    iterations = randint(3, 10)
+    iterations = randint(3, 15)
     surf = np.empty(size)
     camera = SimpleCamera(size, -0.75, 3)
-    print(iterations)
+
     for i in range(iterations):
         compute(surf, camera.bottomleft, camera.step, limits, 0)
 
@@ -118,7 +118,6 @@ def random_position():
                             done = True
         camera.center = camera.complex_at((x, y))
         camera.height /= 3
-        print(i, x, y, camera.center)
 
     return camera
 
