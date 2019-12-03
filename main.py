@@ -123,7 +123,9 @@ class Brocoli(Widget):
         self.image.reload()
 
     def on_touch_down(self, touch):
-        self.camera.zoom(0.69, (touch.x, self.height - touch.y))
+        if self.collide_point(touch.x, touch.y):
+            self.camera.zoom(0.69, (touch.x, self.height - touch.y))
+            return True
 
     def set_random_position(self, *args):
         self.pause()
