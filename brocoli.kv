@@ -9,7 +9,8 @@
             id: brocoli
             size_hint: (0.7, 1)
             image: image
-            # Thanks the automatic binding
+
+            # Thanks automatic binding
             steps: int(2 ** steps_slider.value)
             kind: kind_slider.value
             pixel_size: pixel_slider.value
@@ -17,7 +18,9 @@
             gradient_speed: gradient_speed_slider.value
             gradient_offset: gradient_offset_slider.value
             black_inside: black_inside_checkbox.active
-#            smooth_high_steps: smooth_high_slider.value
+            steps_power: steps_power_slider.value
+            normalize_quantiles: quantiles_checkbox.active
+
             Image:
                 id: image
                 pos: self.parent.pos
@@ -69,6 +72,20 @@
                 CheckBox:
                     id: loop_checkbox
                     active: True
+
+            BoxLayout:
+                Label:
+                    text: "Normalize quantiles ?"
+                CheckBox:
+                    id: quantiles_checkbox
+                    active: True
+
+            LabeledSlider:
+                text: "Steps power"
+                id: steps_power_slider
+                min: 0.1
+                max: 4
+                value: 1
 
             LabeledSlider:
                 text: "Gradient speed"

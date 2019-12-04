@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 from colors import gradient
 
 
-def apply_gradient(surf: np.ndarray, gradient, speed, offset):
+def apply_gradient(surf: np.ndarray, gradient, speed=1.0, offset=0.0):
     gradient = np.array(gradient, dtype=np.int8)
 
     mini = np.nanmin(surf)
@@ -19,6 +19,28 @@ def apply_gradient(surf: np.ndarray, gradient, speed, offset):
     out = gradient[normalised.astype(np.int)]
 
     return out
+
+def normalize_quantiles(surf, nb, exclude_max=True):
+    """
+    Discretize the array such that every number has approximately the same area.
+
+    Preserves the order (ie surf[x] <= surf[y] => f(surf)[x] < f(surf)[y])
+
+    :param surf: ndarray to process
+    :param nb: nb of discrete values in the return
+    :return: ndarray with the same shape and discrete values.
+    """
+
+    values = np.sort(surf.flatten())
+    end = values.size if not exclude_max else values.searchsorted(values[-1])
+    indices = (np.linspace(0, 1, nb, endpoint=False) * end).astype(int)
+    steps = values[indices]
+
+    new = np.empty(surf.shape)
+    for part, bound in enumerate(steps):
+        new[surf >= bound] = part
+
+    return new.reshape(surf.shape)
 
 if __name__ == '__main__':
     surf = np.load('out.frac.npy')

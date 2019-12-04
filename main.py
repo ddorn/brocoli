@@ -12,7 +12,7 @@ from kivy.uix.image import Image as KivyImage
 from kivy.uix.widget import Widget
 
 from camera import SimpleCamera
-from colorize import apply_gradient
+from colorize import apply_gradient, normalize_quantiles
 from colors import gradient
 from compute import compute, random_position
 
@@ -42,7 +42,8 @@ class Brocoli(Widget):
     gradient_speed = NumericProperty(1)
     gradient_offset = NumericProperty(0)
     black_inside = BooleanProperty(True)
-    smooth_high_steps = NumericProperty(0)
+    steps_power = NumericProperty(1)
+    normalize_quantiles = BooleanProperty()
 
     fractal = ObjectProperty(force_dispatch=True)
     image = ObjectProperty(None)  # type: KivyImage
@@ -51,7 +52,8 @@ class Brocoli(Widget):
                                             gradient_speed,
                                             gradient_offset,
                                             black_inside,
-                                            smooth_high_steps,
+                                            steps_power,
+                                            normalize_quantiles,
                                             fractal)
 
     def __init__(self, **kwargs):
@@ -79,50 +81,71 @@ class Brocoli(Widget):
         self.recompute()
 
     def on_loop_gradient(self, *args):
+
+        # grad = list(gradient('#0F4152', '#59A07B', '#F7E491', '#EDB825', '#EB3615', loop=self.loop_gradient))
+        # grad = list(gradient('#7d451b', '#78bc61', '#e3d26f', '#e3d26f', loop=self.loop_gradient))
         # self.gradient = list(gradient(*"D3AD2B D02C22 223336 326C67 187C25".split(), loop=self.loop_gradient))
         # self.gradient = [hsv_to_RGB(h / 1000, 1 , 1) for h in range(1000)]
         # self.gradient = list(gradient(*"39624D 63A26E C6B070 E47735 A62413".split(), loop=self.loop_gradient))
-        self.gradient = list(gradient(*"39624D 63A26E CABF40 FFCB00 F25615".split(), loop=self.loop_gradient))
+        # self.gradient = list(gradient(*"39624D 63A26E CABF40 FFCB00 F25615".split(), loop=self.loop_gradient))
+        # self.gradient = list(gradient(*"FFD500 FFA500 864A29 000080 F2F2E9".split(), loop=self.loop_gradient))
+        self.gradient = list(gradient(*"D83537 DD8151 F1DC81 7CCB86 4C5C77".split(), loop=self.loop_gradient))
 
     def recompute(self):
         if self._pause:
             self._need_compute = True
             return
 
-        surf = np.empty(self.camera.size)
-
         print("Computing fractal", self.camera, "steps:", self.steps)
-        compute(surf, self.camera.bottomleft, self.camera.step, self.steps, self.kind)
+        self.fractal = compute(self.camera, self.steps, self.kind)
         print("done.")
-
-        self.fractal = surf
-
-    def get_smoothed_high_steps(self):
-        if not self.smooth_high_steps:
-            return self.fractal
-
-        maxi = np.nanmax(self.fractal)
-        mini = np.nanmin(self.fractal)
-        threshold = self.smooth_high_steps * (maxi - mini) + mini
-        high = self.fractal > threshold
-        fractal = self.fractal.copy()
-        fractal[high] = np.sqrt(fractal[high] - threshold) + threshold
-        fractal[0,0] = maxi
-        return fractal
 
     def on_coloring_change(self, *args):
         if self.fractal is None:
             return
 
-        # fractal = self.get_smoothed_high_steps()  # if needed
+        fractal = self.fractal
 
-        # grad = list(gradient('#0F4152', '#59A07B', '#F7E491', '#EDB825', '#EB3615', loop=self.loop_gradient))
-        # grad = list(gradient('#7d451b', '#78bc61', '#e3d26f', '#e3d26f', loop=self.loop_gradient))
+        if self.normalize_quantiles:
+            fractal = normalize_quantiles(fractal, len(self.gradient))
 
-        image = apply_gradient(self.fractal, self.gradient, self.gradient_speed, self.gradient_offset)
+        image = apply_gradient(fractal ** self.steps_power, self.gradient, self.gradient_speed, self.gradient_offset)
 
-        if self.black_inside:
+        if self.black_inside and self.kind in (0, 1):
             image[self.fractal >= self.steps] = (0, 0, 0)
+
+        self.update_image(image)
+
+    def save_4k(self):
+        def4k = 3840, 2160
+
+        # Compute with high resolution
+        camera = SimpleCamera(def4k, self.camera.center, self.camera.height)
+        print(f"Computing {def4k[0]}x{def4k[1]} fractal")
+        fractal = raw = compute(camera, self.steps, self.kind)
+
+        # Color the fractal
+        if self.normalize_quantiles:
+            print("Normalizing quantiles...")
+            fractal = normalize_quantiles(fractal, len(self.gradient))
+        print("Applying gradient...")
+        image = apply_gradient(fractal ** self.steps_power, self.gradient, self.gradient_speed, self.gradient_offset)
+        if self.black_inside and self.kind in (0, 1):
+            print("Setting center black...")
+            image[raw >= self.steps] = (0, 0, 0)
+
+        # Saving with a unique name
+        image = Image.fromarray(image.swapaxes(0, 1), mode='RGB')
+        name = datetime.now().strftime("%Y-%m-%d %Hh%Mm%S fractal 4k.png")
+        print(f"Saving as {name}...")
+        image.save(path.join('out', name))
+        print("Done !")
+
+    def update_image(self, image):
+        """
+        Update brocoli's displayed image given an ndarray of
+        size (height, width, 3) of int8 representing colors.
+        """
 
         image = Image.fromarray(image.swapaxes(0, 1), mode='RGB')
         if self.pixel_size != 1:
@@ -143,26 +166,6 @@ class Brocoli(Widget):
         self.camera.center = new_camera.center
         self.camera.height = new_camera.height
         self.resume()
-
-    def save_4k(self):
-        def4k = 3840, 2160
-
-        surf = np.empty(def4k)
-        camera = SimpleCamera(def4k, self.camera.center, self.camera.height)
-
-        print("Computing 4K fractal", camera, "steps:", self.steps)
-        compute(surf, camera.bottomleft, camera.step, self.steps, self.kind)
-
-        print("Coloring 4K fractal.")
-        image = apply_gradient(surf, self.gradient, self.gradient_speed, self.gradient_offset)
-
-        if self.black_inside:
-            image[surf >= self.steps] = (0, 0, 0)
-
-        image = Image.fromarray(image.swapaxes(0, 1), mode='RGB')
-
-        name = datetime.now().strftime("%Y-%m-%d %Hh%Mm%S fractal 4k.png")
-        image.save(path.join('out', name))
 
     def pause(self):
         """

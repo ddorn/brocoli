@@ -10,6 +10,8 @@ import click
 from camera import SimpleCamera
 
 
+__all__ = ['compute']
+
 @njit(cache=True)
 def f(z, c):
     return z * z + c
@@ -103,7 +105,7 @@ def random_position():
     camera = SimpleCamera(size, -0.75, 3)
 
     for i in range(iterations):
-        compute(surf, camera.bottomleft, camera.step, limits, 0)
+        compute(camera, limits, 0, out=surf)
 
         # now we find a pixel on the border and zoom there
         done = False
@@ -123,7 +125,7 @@ def random_position():
 
 
 @njit(parallel=True, cache=True)
-def compute(surf, bottomleft, pixstep, limits, kind=2):
+def _compute(out, bottomleft, pixstep, limits, kind=2):
     """
     Compute the escape time of each points of the surf.
 
@@ -131,7 +133,7 @@ def compute(surf, bottomleft, pixstep, limits, kind=2):
     Limits is the maximum number of iterations.
     """
 
-    w, h = surf.shape
+    w, h = out.shape
     for x in prange(w):
         a = bottomleft.real + pixstep * x
         for y in prange(h):
@@ -148,8 +150,33 @@ def compute(surf, bottomleft, pixstep, limits, kind=2):
             else:
                 r = escape(c, limits)
 
-            surf[x, y] = r
+            out[x, y] = r
 
+
+def compute(camera: SimpleCamera, limits, kind, out=None):
+    """
+    Compute the view of the Mandelbrot set defined by the camera.
+
+    This is a convenience function for _compute.
+
+    :param limits: maximum number of iterations
+    :param kind:
+        0: traditional escape time
+        1: smooth escape time
+        2: bugged smooth escape time
+        3: triangle inequality average
+    :param out: out array. If none is specified a new one is made.
+    :return: a ndarray of dimension :camera.size: with the values of the
+        coloring function on each complex point inside the frame.
+        If :out: is not None, then the return array is out.
+    """
+
+    if out is None:
+        out = np.empty(camera.size)
+    else:
+        assert tuple(camera.size) == out.shape, f"The camera and out array have different sizes. {camera.size} != {out.shape}"
+    _compute(out, camera.bottomleft, camera.step, limits, kind)
+    return out
 
 @click.command()
 @click.argument('centerx', default=-0.75)
