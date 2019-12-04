@@ -191,10 +191,8 @@ def main(width, height, centerx, centery, zoom, out, show):
     size = (width, height)
     camera = SimpleCamera(size, centerx + 1j * centery, zoom)
 
-    surf = np.empty(size)
-
     print("Computing fractal")
-    compute(surf, camera.bottomleft, camera.step, 100, 3)
+    surf = compute(camera, 100, 3)
 
     print(f"Saving to {out}.npy")
     np.save(out, surf)
