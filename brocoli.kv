@@ -29,94 +29,100 @@
                 allow_stretch: True
                 mipmap: True
 
-        BoxLayout:
-            size_hint: (0.3, 1)
-#            cols: 2
-            orientation: "vertical"
+        MDTabs:
+            size_hint_x: 0.4
+            id: android_tabs
 
-            MDLabel:
-                text: "Brocoli"
-                font_style: "H2"
-                halign: "center"
-            MDLabel:
-                text: str(brocoli.camera.center)
-                size_hint_y: None
-                size: self.texture_size
+            MyTab:
+                text: "crosshairs-gps"
+                BoxLayout:
+                    orientation: "vertical"
+                    MDLabel:
+                        text: str(brocoli.camera.center)
+                    LabeledSlider:
+                        text: "Pixel size"
+                        id: pixel_slider
+                        min: 1
+                        max: 10
+                        step: 1
+                        value: 1
+
+                    LabeledSlider:
+                        text: "Steps"
+                        id: steps_slider
+                        min: 5
+                        max: 14
+                        step: 1
+
+                    Label:
+                        # For better spacing
+                        size_hint_y: 8
+
+                    MDRaisedButton:
+                        text: "Random position"
+                        on_release: brocoli.set_random_position()
+                        size_hint_x: 1
+
+            MyTab:
+                text: "palette"
+                LabeledSlider:
+                    text: "Coloration kind"
+                    id: kind_slider
+                    min: 0
+                    max: 3
+                    value: 1
+                    step: 1
+
+                BoxLayout:
+                    MDLabel:
+                        text: "Loop gradient ?"
+                    MDCheckbox:
+                        id: loop_checkbox
+                        active: True
+
+                BoxLayout:
+                    MDLabel:
+                        text: "Normalize quantiles ?"
+                    MDCheckbox:
+                        id: quantiles_checkbox
+                        active: False
+
+                LabeledSlider:
+                    text: "Steps power"
+                    id: steps_power_slider
+                    min: 0.1
+                    max: 4
+                    value: 1
+
+                LabeledSlider:
+                    text: "Gradient speed"
+                    id: gradient_speed_slider
+                    min: 1
+                    max: 10
+
+                LabeledSlider:
+                    text: "Gradient offset"
+                    id: gradient_offset_slider
+                    min: 0
+                    max: 1
+
+                BoxLayout:
+                    MDLabel:
+                        text: "Black inside ?"
+                    MDCheckbox:
+                        id: black_inside_checkbox
+                        value: True
 
 
-            LabeledSlider:
-                text: "Pixel size"
-                id: pixel_slider
-                min: 1
-                max: 10
-                step: 1
-                value: 1
-
-            LabeledSlider:
-                text: "Steps"
-                id: steps_slider
-                min: 5
-                max: 14
-                step: 1
-
-            LabeledSlider:
-                text: "Coloration kind"
-                id: kind_slider
-                min: 0
-                max: 3
-                value: 1
-                step: 1
-
-            BoxLayout:
-                MDLabel:
-                    text: "Loop gradient ?"
-                MDCheckbox:
-                    id: loop_checkbox
-                    active: True
-
-            BoxLayout:
-                MDLabel:
-                    text: "Normalize quantiles ?"
-                MDCheckbox:
-                    id: quantiles_checkbox
-                    active: False
-
-            LabeledSlider:
-                text: "Steps power"
-                id: steps_power_slider
-                min: 0.1
-                max: 4
-                value: 1
-
-            LabeledSlider:
-                text: "Gradient speed"
-                id: gradient_speed_slider
-                min: 1
-                max: 10
-
-            LabeledSlider:
-                text: "Gradient offset"
-                id: gradient_offset_slider
-                min: 0
-                max: 1
-
-            BoxLayout:
-                MDLabel:
-                    text: "Black inside ?"
-                MDCheckbox:
-                    id: black_inside_checkbox
-                    value: True
-
-            BoxLayout:
                 MDRaisedButton:
-                    text: "Random position"
-                    on_release: brocoli.set_random_position()
-                    size_hint_x: 0.5
-                MDRaisedButton:
-                    size_hint_x: 0.5
+                    size_hint_x: 1
                     id: save_buttom
                     text: "Save 4K image"
                     on_release: brocoli.save_4k()
+
+
+<MyTab>:
+    orientation: "vertical"
 
 
 <LabeledSlider>:
@@ -135,4 +141,3 @@
 <MDLabel>:
     halign: "center"
     theme_text_color: 'Primary'
-
