@@ -10,6 +10,7 @@ from kivy.properties import NumericProperty, StringProperty, ObjectProperty, Boo
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image as KivyImage
 from kivy.uix.widget import Widget
+from kivymd.app import MDApp
 
 from camera import SimpleCamera
 from colorize import apply_gradient, normalize_quantiles
@@ -89,7 +90,8 @@ class Brocoli(Widget):
         # self.gradient = list(gradient(*"39624D 63A26E C6B070 E47735 A62413".split(), loop=self.loop_gradient))
         # self.gradient = list(gradient(*"39624D 63A26E CABF40 FFCB00 F25615".split(), loop=self.loop_gradient))
         # self.gradient = list(gradient(*"FFD500 FFA500 864A29 000080 F2F2E9".split(), loop=self.loop_gradient))
-        self.gradient = list(gradient(*"D83537 DD8151 F1DC81 7CCB86 4C5C77".split(), loop=self.loop_gradient))
+        # self.gradient = list(gradient(*"D83537 DD8151 F1DC81 7CCB86 4C5C77".split(), loop=self.loop_gradient))
+        self.gradient = list(gradient(*"01ACD7 68C6C9 EFDC85 EB9821 9F290E".split(), loop=self.loop_gradient))
 
     def recompute(self):
         if self._pause:
@@ -185,7 +187,15 @@ class MainWidget(Widget):
     pass
 
 
-class BrocoliApp(App):
+class BrocoliApp(MDApp):
+
+    def __init__(self, **kwargs):
+        self.title = "Brocoli"
+        self.theme_cls.theme_style = "Dark"
+        self.theme_cls.primary_palette = "Green"
+
+        super().__init__(**kwargs)
+
     def build(self):
         return MainWidget()
 

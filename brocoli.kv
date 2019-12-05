@@ -34,10 +34,11 @@
 #            cols: 2
             orientation: "vertical"
 
-            Label:
+            MDLabel:
                 text: "Brocoli"
-                font_size: 50
-            Label:
+                font_style: "H2"
+                halign: "center"
+            MDLabel:
                 text: str(brocoli.camera.center)
                 size_hint_y: None
                 size: self.texture_size
@@ -67,18 +68,18 @@
                 step: 1
 
             BoxLayout:
-                Label:
+                MDLabel:
                     text: "Loop gradient ?"
-                CheckBox:
+                MDCheckbox:
                     id: loop_checkbox
                     active: True
 
             BoxLayout:
-                Label:
+                MDLabel:
                     text: "Normalize quantiles ?"
-                CheckBox:
+                MDCheckbox:
                     id: quantiles_checkbox
-                    active: True
+                    active: False
 
             LabeledSlider:
                 text: "Steps power"
@@ -100,17 +101,19 @@
                 max: 1
 
             BoxLayout:
-                Label:
+                MDLabel:
                     text: "Black inside ?"
-                CheckBox:
+                MDCheckbox:
                     id: black_inside_checkbox
+                    value: True
 
             BoxLayout:
-                Button:
+                MDRaisedButton:
                     text: "Random position"
                     on_release: brocoli.set_random_position()
-
-                Button:
+                    size_hint_x: 0.5
+                MDRaisedButton:
+                    size_hint_x: 0.5
                     id: save_buttom
                     text: "Save 4K image"
                     on_release: brocoli.save_4k()
@@ -118,13 +121,18 @@
 
 <LabeledSlider>:
     value: slider.value
-    Label:
+    MDLabel:
         size_hint_x: 0.4
         text: self.parent.text + " ({}) :".format(round(slider.value, 2))
-    Slider:
+    MDSlider:
         id: slider
         size_hint_x: 0.6
         min: self.parent.min
         max: self.parent.max
         value: self.parent.value
         step: self.parent.step
+
+<MDLabel>:
+    halign: "center"
+    theme_text_color: 'Primary'
+
