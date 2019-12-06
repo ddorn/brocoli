@@ -1,5 +1,4 @@
 from kivy.event import EventDispatcher
-from kivy.properties import ReferenceListProperty
 
 
 class EventDispatcherExtension(EventDispatcher):
@@ -23,7 +22,7 @@ class EventDispatcherExtension(EventDispatcher):
             self._need_dispatch = True
             return
 
-        print("dispatch change", self, args)
+        # print("dispatch change", self, args)
         self.dispatch('on_change', args)
 
     def __enter__(self):

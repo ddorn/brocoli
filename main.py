@@ -1,20 +1,22 @@
 #!/usr/bin/env python3
+import os
 from colorsys import hsv_to_rgb
 from datetime import datetime
 from os import path
 
 from PIL import Image
 from kivy.clock import Clock
-from kivy.properties import NumericProperty, StringProperty, ObjectProperty, BooleanProperty, ReferenceListProperty
+from kivy.lang import Builder
+from kivy.properties import NumericProperty, StringProperty, ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image as KivyImage
 from kivy.uix.widget import Widget
 from kivymd.app import MDApp
+from numpy.compat import os_PathLike
 
 from camera import SimpleCamera
 from colorize import apply_gradient, normalize_quantiles
-from colors import gradient
-from compute import compute, random_position
+from compute import compute
 from tabs import *
 
 
@@ -141,6 +143,10 @@ class MainWidget(Widget):
 class BrocoliApp(MDApp):
 
     def __init__(self, **kwargs):
+
+        for kv in os.listdir('./tabs'):
+            if kv.endswith('.kv'):
+                Builder.load_file(os.path.join('tabs', kv))
         self.title = "Brocoli"
         self.theme_cls.theme_style = "Dark"
         self.theme_cls.primary_palette = "Green"

@@ -1,0 +1,49 @@
+<GradientTab>:
+    text: "palette"
+
+    loop_gradient: loop_checkbox.active
+    gradient_speed: gradient_speed_slider.value
+    gradient_offset: gradient_offset_slider.value
+    black_inside: black_inside_checkbox.active
+    steps_power: steps_power_slider.value
+    normalize_quantiles: quantiles_checkbox.active
+
+    BoxLayout:
+        MDLabel:
+            text: "Loop gradient ?"
+        MDCheckbox:
+            id: loop_checkbox
+            active: True
+
+    BoxLayout:
+        MDLabel:
+            text: "Normalize quantiles ?"
+        MDCheckbox:
+            id: quantiles_checkbox
+            active: False
+
+    LabeledSlider:
+        text: "Steps power"
+        id: steps_power_slider
+        min: 0.1
+        max: 4
+        value: 1
+
+    LabeledSlider:
+        text: "Gradient speed"
+        id: gradient_speed_slider
+        min: 1
+        max: 10
+
+    LabeledSlider:
+        text: "Gradient offset"
+        id: gradient_offset_slider
+        min: 0
+        max: 1
+
+    BoxLayout:
+        MDLabel:
+            text: "Black inside ?"
+        MDCheckbox:
+            id: black_inside_checkbox
+            value: True

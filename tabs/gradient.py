@@ -1,43 +1,8 @@
-from kivy.properties import ObjectProperty, NumericProperty, BooleanProperty, ReferenceListProperty, AliasProperty
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.widget import Widget
-from kivymd.uix.tab import MDTabsBase
+from kivy.properties import ObjectProperty, NumericProperty, BooleanProperty, ReferenceListProperty
 
-from camera import SimpleCamera
 from colors import gradient
-from compute import random_position
-from dispatcher_extension import EventDispatcherExtension
+from tabs.base import MyTab
 
-__all__ = ['MyTab', 'CameraTab', 'GradientTab', 'SaveTab']
-
-class MyTab(BoxLayout, MDTabsBase, EventDispatcherExtension):
-    brocoli = ObjectProperty(rebind=True)
-
-
-
-class CameraTab(MyTab):
-    kind = NumericProperty(3)
-    pixel_size = NumericProperty()
-    steps = NumericProperty()
-    camera = ObjectProperty(SimpleCamera((1, 1)), rebind=True)
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.set_components_for_change("pixel_size kind steps camera".split())
-        self.camera.bind(on_change=self.dispatch_change)
-
-    def on_steps(self, *args):
-        print("STEPS", args)
-
-    def on_view_size_change(self, new_size):
-        self.camera.size = int(new_size[0] / self.pixel_size), int(new_size[1] / self.pixel_size)
-
-    def set_random_position(self, *args):
-        new_camera = random_position()
-
-        with self:
-            self.camera.center = new_camera.center
-            self.camera.height = new_camera.height
 
 class GradientTab(MyTab):
     loop_gradient = BooleanProperty(True)
@@ -71,7 +36,3 @@ class GradientTab(MyTab):
         # self.gradient = list(gradient(*"D83537 DD8151 F1DC81 7CCB86 4C5C77".split(), loop=self.loop_gradient))
         # self.gradient = list(gradient(*"01ACD7 68C6C9 EFDC85 EB9821 9F290E".split(), loop=self.loop_gradient))
 
-
-
-class SaveTab(MyTab):
-    pass
