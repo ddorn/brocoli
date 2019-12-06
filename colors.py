@@ -4,7 +4,7 @@ def mix(a, b, f):
 
 def gradient(*colors, steps=256, loop=False):
     """
-    Yield the values of a gradient as RGB tuple.
+    Yield the values of a colorisation as RGB tuple.
     :param colors: RGB tuples or hex strings
     :param steps: number of colors to generate
     """

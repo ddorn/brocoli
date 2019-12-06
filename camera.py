@@ -1,21 +1,26 @@
 from kivy.event import EventDispatcher
 from kivy.properties import ObjectProperty, NumericProperty, ReferenceListProperty
 
+from dispatcher_extension import EventDispatcherExtension
 
-class SimpleCamera(EventDispatcher):
+
+class SimpleCamera(EventDispatcherExtension):
     center = ObjectProperty(0j)
     height = NumericProperty(2)
     w = NumericProperty()
     h = NumericProperty()
     size = ReferenceListProperty(w, h)
 
-    any = ReferenceListProperty(center, height, size)
 
     def __init__(self, size, center=0j, height=2, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.center = center
         self.height = height
         self.size = size
+        self.set_components_for_change("center height size".split())
+
+    def __str__(self) -> str:
+        return f"<Camera({self.size[0]}x{self.size[1]}, {float(self.height) :.2}, {self.center})>"
 
     @property
     def step(self):
@@ -38,8 +43,9 @@ class SimpleCamera(EventDispatcher):
 
     def zoom(self, zoom, pixel):
         before = self.complex_at(pixel)
-        self.height *= zoom
-        self.fix(pixel, before)
+        with self:
+            self.height *= zoom
+            self.fix(pixel, before)
 
     def fix(self, pixel, c):
         self.center -= self.complex_at(pixel) - c

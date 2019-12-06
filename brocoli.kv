@@ -10,16 +10,9 @@
             size_hint: (0.7, 1)
             image: image
 
-            # Thanks automatic binding
-            steps: int(2 ** steps_slider.value)
-            kind: kind_slider.value
-            pixel_size: pixel_slider.value
-            loop_gradient: loop_checkbox.active
-            gradient_speed: gradient_speed_slider.value
-            gradient_offset: gradient_offset_slider.value
-            black_inside: black_inside_checkbox.active
-            steps_power: steps_power_slider.value
-            normalize_quantiles: quantiles_checkbox.active
+            camera_tab: camera_tab
+            gradient_tab: gradient_tab
+            save_tab: save_tab
 
             Image:
                 id: image
@@ -30,99 +23,17 @@
                 mipmap: True
 
         MDTabs:
-            size_hint_x: 0.4
-            id: android_tabs
+            size_hint_x: 0.3
 
-            MyTab:
-                text: "crosshairs-gps"
-                BoxLayout:
-                    orientation: "vertical"
-                    MDLabel:
-                        text: str(brocoli.camera.center)
-                    LabeledSlider:
-                        text: "Pixel size"
-                        id: pixel_slider
-                        min: 1
-                        max: 10
-                        step: 1
-                        value: 1
-
-                    LabeledSlider:
-                        text: "Steps"
-                        id: steps_slider
-                        min: 5
-                        max: 14
-                        step: 1
-
-                    Label:
-                        # For better spacing
-                        size_hint_y: 8
-
-                    MDRaisedButton:
-                        text: "Random position"
-                        on_release: brocoli.set_random_position()
-                        size_hint_x: 1
-
-            MyTab:
-                text: "palette"
-                LabeledSlider:
-                    text: "Coloration kind"
-                    id: kind_slider
-                    min: 0
-                    max: 3
-                    value: 1
-                    step: 1
-
-                BoxLayout:
-                    MDLabel:
-                        text: "Loop gradient ?"
-                    MDCheckbox:
-                        id: loop_checkbox
-                        active: True
-
-                BoxLayout:
-                    MDLabel:
-                        text: "Normalize quantiles ?"
-                    MDCheckbox:
-                        id: quantiles_checkbox
-                        active: False
-
-                LabeledSlider:
-                    text: "Steps power"
-                    id: steps_power_slider
-                    min: 0.1
-                    max: 4
-                    value: 1
-
-                LabeledSlider:
-                    text: "Gradient speed"
-                    id: gradient_speed_slider
-                    min: 1
-                    max: 10
-
-                LabeledSlider:
-                    text: "Gradient offset"
-                    id: gradient_offset_slider
-                    min: 0
-                    max: 1
-
-                BoxLayout:
-                    MDLabel:
-                        text: "Black inside ?"
-                    MDCheckbox:
-                        id: black_inside_checkbox
-                        value: True
-
-
-                MDRaisedButton:
-                    size_hint_x: 1
-                    id: save_buttom
-                    text: "Save 4K image"
-                    on_release: brocoli.save_4k()
-
-
-<MyTab>:
-    orientation: "vertical"
+            CameraTab:
+                id: camera_tab
+                brocoli: brocoli
+            GradientTab:
+                id: gradient_tab
+                brocoli: brocoli
+            SaveTab:
+                id: save_tab
+                brocoli: brocoli
 
 
 <LabeledSlider>:
@@ -141,3 +52,113 @@
 <MDLabel>:
     halign: "center"
     theme_text_color: 'Primary'
+
+
+<MyTab>:
+    orientation: "vertical"
+
+
+<CameraTab>:
+    text: "crosshairs-gps"
+
+    steps: int(2 ** steps_slider.value)
+    pixel_size: pixel_slider.value
+    kind: kind_slider.value
+
+
+    BoxLayout:
+        orientation: "vertical"
+        MDLabel:
+            text: str(root.camera.center)
+        LabeledSlider:
+            text: "Pixel size"
+            id: pixel_slider
+            min: 1
+            max: 10
+            step: 1
+            value: 1
+
+        LabeledSlider:
+            text: "Steps"
+            id: steps_slider
+            min: 5
+            max: 14
+            step: 1
+
+        LabeledSlider:
+            text: "Coloration kind"
+            id: kind_slider
+            min: 0
+            max: 3
+            value: 1
+            step: 1
+
+
+        Label:
+            # For better spacing
+            size_hint_y: 8
+
+        MDRaisedButton:
+            text: "Random position"
+            on_release: root.set_random_position()
+            size_hint_x: 1
+
+<GradientTab>:
+    text: "palette"
+
+    loop_gradient: loop_checkbox.active
+    gradient_speed: gradient_speed_slider.value
+    gradient_offset: gradient_offset_slider.value
+    black_inside: black_inside_checkbox.active
+    steps_power: steps_power_slider.value
+    normalize_quantiles: quantiles_checkbox.active
+
+    BoxLayout:
+        MDLabel:
+            text: "Loop gradient ?"
+        MDCheckbox:
+            id: loop_checkbox
+            active: True
+
+    BoxLayout:
+        MDLabel:
+            text: "Normalize quantiles ?"
+        MDCheckbox:
+            id: quantiles_checkbox
+            active: False
+
+    LabeledSlider:
+        text: "Steps power"
+        id: steps_power_slider
+        min: 0.1
+        max: 4
+        value: 1
+
+    LabeledSlider:
+        text: "Gradient speed"
+        id: gradient_speed_slider
+        min: 1
+        max: 10
+
+    LabeledSlider:
+        text: "Gradient offset"
+        id: gradient_offset_slider
+        min: 0
+        max: 1
+
+    BoxLayout:
+        MDLabel:
+            text: "Black inside ?"
+        MDCheckbox:
+            id: black_inside_checkbox
+            value: True
+
+
+
+<SaveTab>:
+    text: 'content-save'
+    MDRaisedButton:
+        size_hint_x: 1
+        id: save_buttom
+        text: "Save 4K image"
+        on_release: self.brocoli.save_4k()
