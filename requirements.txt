@@ -1,0 +1,6 @@
+kivy
+kivymd
+numba
+numpy
+click
+pillow
