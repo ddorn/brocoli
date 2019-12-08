@@ -33,6 +33,7 @@ class LabeledSlider(BoxLayout):
 class Brocoli(Widget):
     # Tabs
     camera_tab : CameraTab = ObjectProperty()
+    preproc_tab : PreprocTab = ObjectProperty()
     gradient_tab : GradientTab = ObjectProperty()
     save_tab : SaveTab = ObjectProperty()
 
@@ -73,6 +74,7 @@ class BrocoliApp(MDApp):
 
         for kv in os.listdir('./tabs'):
             if kv.endswith('.kv'):
+                print("Loaded", kv)
                 Builder.load_file(os.path.join('tabs', kv))
         self.title = "Brocoli"
         self.theme_cls.theme_style = "Dark"

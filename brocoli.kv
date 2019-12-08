@@ -12,6 +12,7 @@
             image: image
 
             camera_tab: camera_tab
+            preproc_tab: preproc_tab
             gradient_tab: gradient_tab
             save_tab: save_tab
 
@@ -31,10 +32,14 @@
             CameraTab:
                 id: camera_tab
                 brocoli: brocoli
+            PreprocTab:
+                id: preproc_tab
+                brocoli: brocoli
+                fractal: camera_tab.fractal
             GradientTab:
                 id: gradient_tab
                 brocoli: brocoli
-                fractal: camera_tab.fractal
+                preproc_fractal: preproc_tab.preproc_fractal
             SaveTab:
                 id: save_tab
                 colored_fractal: gradient_tab.colored_fractal

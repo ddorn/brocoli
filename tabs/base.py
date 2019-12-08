@@ -13,5 +13,5 @@ if TYPE_CHECKING:
 class MyTab(BoxLayout, MDTabsBase, EventDispatcherExtension):
     brocoli = ObjectProperty(rebind=True)  # type: Brocoli
 
-    def process(self, **kwargs):
+    def process(self,  *args, **kwargs):
         return NotImplemented
