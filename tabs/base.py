@@ -4,6 +4,14 @@ from kivymd.uix.tab import MDTabsBase
 
 from dispatcher_extension import EventDispatcherExtension
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from main import Brocoli
+
 
 class MyTab(BoxLayout, MDTabsBase, EventDispatcherExtension):
-    brocoli = ObjectProperty(rebind=True)
+    brocoli = ObjectProperty(rebind=True)  # type: Brocoli
+
+    def process(self, **kwargs):
+        return NotImplemented

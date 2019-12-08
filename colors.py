@@ -1,3 +1,7 @@
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+
+
 def mix(a, b, f):
     return [round(aa * (1-f) + bb * f ) for aa, bb in zip(a, b)]
 

@@ -12,11 +12,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image as KivyImage
 from kivy.uix.widget import Widget
 from kivymd.app import MDApp
-from numpy.compat import os_PathLike
 
-from camera import SimpleCamera
-from colorize import apply_gradient, normalize_quantiles
-from compute import compute
 from tabs import *
 
 
@@ -38,98 +34,29 @@ class Brocoli(Widget):
     # Tabs
     camera_tab : CameraTab = ObjectProperty()
     gradient_tab : GradientTab = ObjectProperty()
-    post_processing_tab = ObjectProperty()
     save_tab : SaveTab = ObjectProperty()
 
-    fractal = ObjectProperty(force_dispatch=True)
     image = ObjectProperty(None)  # type: KivyImage
+    colored_fractal = ObjectProperty(force_dispatch=True, allownone=True)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        Clock.schedule_once(self.do_binds)
-
-    def do_binds(self, *args):
-        self.camera_tab.bind(on_change=self.on_camera)
-        self.gradient_tab.bind(on_change=self.recolor)
-        self.bind(fractal=self.recolor)
-
-    @property
-    def int_size(self):
-        return int(self.size[0]), int(self.size[1])
-
     def on_size(self, *args):
         self.camera_tab.on_view_size_change(self.size)
 
-    def on_camera(self, *args):
-        print("ON CAMERA", *args)
-        self.recompute()
-
-    def recompute(self):
-
-        print("Computing fractal", self.camera_tab.camera, "steps:", self.camera_tab.steps)
-        self.fractal = compute(self.camera_tab.camera, self.camera_tab.steps, self.camera_tab.kind)
-        print("done.")
-
-    def recolor(self, *args):
-        if self.fractal is None:
+    def on_colored_fractal(self, *args):
+        if self.colored_fractal is None:
+            print("Brocoli.on_colored_fractal was called with no fractal")
             return
-
-        fractal = self.fractal
-
-        if self.gradient_tab.normalize_quantiles:
-            fractal = normalize_quantiles(fractal, len(self.gradient))
-
-        image = apply_gradient(fractal ** self.gradient_tab.steps_power, self.gradient, self.gradient_tab.gradient_speed, self.gradient_tab.gradient_offset)
-
-        if self.gradient_tab.black_inside and self.camera_tab.kind in (0, 1):
-            image[self.fractal >= self.camera_tab.steps] = (0, 0, 0)
-
-        self.update_image(image)
-
-    def save_4k(self):
-        def4k = 3840, 2160
-
-        # Compute with high resolution
-        camera = SimpleCamera(def4k, self.camera_tab.camera.center, self.camera_tab.camera.height)
-        print(f"Computing {def4k[0]}x{def4k[1]} fractal")
-        fractal = raw = compute(camera, self.camera_tab.steps, self.camera_tab.kind)
-
-        # Color the fractal
-        if self.gradient_tab.normalize_quantiles:
-            print("Normalizing quantiles...")
-            fractal = normalize_quantiles(fractal, len(self.gradient))
-        print("Applying gradient...")
-        image = apply_gradient(fractal ** self.gradient_tab.steps_power, self.gradient, self.gradient_tab.gradient_speed, self.gradient_tab.gradient_offset)
-        if self.gradient_tab.black_inside and self.camera_tab.kind in (0, 1):
-            print("Setting center black...")
-            image[raw >= self.camera_tab.steps] = (0, 0, 0)
-
-        # Saving with a unique name
-        image = Image.fromarray(image.swapaxes(0, 1), mode='RGB')
-        name = datetime.now().strftime("%Y-%m-%d %Hh%Mm%S fractal 4k.png")
-        print(f"Saving as {name}...")
-        image.save(path.join('out', name))
-        print("Done !")
-
-    @property
-    def gradient(self):
-        return self.gradient_tab.gradient
-
-    def update_image(self, image):
-        """
-        Update brocoli's displayed image given an ndarray of
-        size (height, width, 3) of int8 representing colors.
-        """
-
-        image = Image.fromarray(image.swapaxes(0, 1), mode='RGB')
-        if self.camera_tab.pixel_size != 1:
-            image = image.resize(self.int_size)
+        
+        image = Image.fromarray(self.colored_fractal.swapaxes(0, 1), mode='RGB')
 
         image.save("frac.png")
         self.image.source = "frac.png"
         self.image.reload()
         print('updated !')
+
 
     def on_touch_down(self, touch):
         if self.collide_point(touch.x, touch.y):

@@ -1,8 +1,17 @@
 
 <SaveTab>:
     text: 'content-save'
+    choose_chip: choose_chip
+    MDChooseChip:
+        id: choose_chip
+
     MDRaisedButton:
         size_hint_x: 1
         id: save_buttom
-        text: "Save 4K image"
-        on_release: self.brocoli.save_4k()
+        text: "Save {} × {} image".format(*root.resolution)
+        on_release: root.process()
+
+<ResoChip>:
+    icon: ''
+    label: "{} × {}".format(*self.res)
+

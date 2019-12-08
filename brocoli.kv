@@ -8,11 +8,14 @@
         Brocoli:
             id: brocoli
             size_hint: (0.7, 1)
+
             image: image
 
             camera_tab: camera_tab
             gradient_tab: gradient_tab
             save_tab: save_tab
+
+            colored_fractal: gradient_tab.colored_fractal
 
             Image:
                 id: image
@@ -31,8 +34,10 @@
             GradientTab:
                 id: gradient_tab
                 brocoli: brocoli
+                fractal: camera_tab.fractal
             SaveTab:
                 id: save_tab
+                colored_fractal: gradient_tab.colored_fractal
                 brocoli: brocoli
 
 

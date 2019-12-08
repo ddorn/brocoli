@@ -17,7 +17,11 @@ class SimpleCamera(EventDispatcherExtension):
         self.center = center
         self.height = height
         self.size = size
-        self.set_components_for_change("center height size".split())
+
+        self.bind(center=self.dispatch_change,
+                  height=self.dispatch_change,
+                  size=self.dispatch_change)
+        # self.set_components_for_change("center height size".split())
 
     def __str__(self) -> str:
         return f"<Camera({self.size[0]}x{self.size[1]}, {float(self.height) :.2}, {self.center})>"

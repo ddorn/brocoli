@@ -12,10 +12,11 @@ class EventDispatcherExtension(EventDispatcher):
         self.register_event_type('on_change')
 
     def set_components_for_change(self, compl: list):
+        # return NotImplemented
         self.bind(**{name: self.dispatch_change for name in compl})
 
     def on_change(self, *args):
-        pass
+        print(args)
 
     def dispatch_change(self, *args):
         if self._pause:
@@ -23,7 +24,8 @@ class EventDispatcherExtension(EventDispatcher):
             return
 
         # print("dispatch change", self, args)
-        self.dispatch('on_change', args)
+        print(self, "CHAAAANGE", args)
+        self.dispatch('on_change')
 
     def __enter__(self):
         self._pause = True

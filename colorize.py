@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import numpy as np
-from matplotlib import pyplot as plt
 
 from colors import gradient
 
@@ -43,6 +42,8 @@ def normalize_quantiles(surf, nb, exclude_max=True):
     return new.reshape(surf.shape)
 
 if __name__ == '__main__':
+    from matplotlib import pyplot as plt
+
     surf = np.load('out.frac.npy')
     grad = tuple(gradient((0, 0, 0), (255, 169, 0), steps=255))
 
