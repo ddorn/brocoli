@@ -44,7 +44,7 @@ class PreprocTab(MyTab):
             return
 
         if steps_power not in (0, 1):
-            fractal **= steps_power
+            fractal = fractal ** steps_power
 
         if norm_quantiles:
             fractal = normalize_quantiles(fractal, 1000)

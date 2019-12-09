@@ -10,7 +10,7 @@ class CameraTab(MyTab):
     kind = NumericProperty(1)
     pixel_size = NumericProperty()
     steps = NumericProperty(42)
-    camera = ObjectProperty(SimpleCamera((42, 42)), rebind=True)
+    camera = ObjectProperty(SimpleCamera((42, 42), -0.75, 3), rebind=True)
     fractal = ObjectProperty(force_dispatch=True, allownone=True)
 
     def __init__(self, **kwargs):
