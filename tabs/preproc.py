@@ -43,21 +43,47 @@ class PreprocTab(MyTab):
             print('Warning: GradientTab.process called without fractal.')
             return
 
-        if steps_power not in (0, 1):
-            fractal = fractal ** steps_power
+        fractal = fractal.copy()
+
+        # we don't want a constant image
+        if speed == 0:
+            speed = 1
 
         if norm_quantiles:
             fractal = normalize_quantiles(fractal, 1000)
 
-        # put fractal between 0 and 1
-        maxi = np.nanmax(fractal)
-        mini = np.nanmin(fractal)
-        fractal = (fractal - mini) / (maxi - mini)
+        if steps_power not in (0, 1):
+            # signed power
+            fractal = abs(fractal) ** steps_power * np.sign(fractal)
 
-        if speed == 0:
-            # we don't want a constant image
-            speed = 1
-        fractal = (fractal * speed + offset) % 1.0
+        # put fractal between 0 and 1
+        pos = fractal[fractal >= 0]
+        neg = fractal[fractal < 0]
+
+        if pos.size > 0:
+            mini = np.nanmin(pos)
+            maxi = np.nanmax(pos)
+            if mini != maxi:
+                pos[:] = (pos - mini) / (maxi - mini)
+                pos[:] = (pos * speed + offset) % 1.0
+            else:
+                pos[:] = 1
+
+        if neg.size > 0:
+            mini = np.nanmin(neg)
+            maxi = np.nanmax(neg)
+            if mini != maxi:
+                neg[:] = (neg - maxi) / (maxi - mini)
+                neg[:] = (neg * speed + offset) % 1.0 - 1
+            else:
+                neg[:] = -1
+
+            assert (neg <= 0).all()
+
+        fractal[fractal >= 0] = pos
+        fractal[fractal < 0] = neg
+
+        print(np.nanmin(fractal), np.nanmax(fractal))
 
         if cache:
             self.preproc_fractal = fractal

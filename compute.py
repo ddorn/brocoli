@@ -24,7 +24,7 @@ def escape(c, limit=50, f=f):
         z = f(z, c)
         if abs(z) > 2:
             return i
-    return limit
+    return -limit
 
 
 @njit(cache=True)
@@ -35,7 +35,7 @@ def escape_smooth(c, limit=50, f=f):
         z = f(z, c)
         if abs(z) > bound:
             return i + log(log(bound) / log(abs(z))) / log(2)
-    return limit
+    return -limit
 
 
 @njit(cache=True)
@@ -54,13 +54,13 @@ def escape_angle(c, limit=50, f=f):
     s = 0j
     for z in orbit:
         s += z
-    return abs(s) / len(orbit)
+    return -abs(s) / len(orbit)
 
 
 @njit(cache=True)
 def escape_smoothfire(c, limit=50, f=f):
     ln12 = 1 / log(2)
-    bound = 200
+    bound = 200_000_000
     lnbound = log(bound)
 
     absc = abs(c)
@@ -93,12 +93,12 @@ def escape_smoothfire(c, limit=50, f=f):
     d = 1 + ln12 * log(lnbound / abs(log(absz)))
     s1 = t / (i - 1)
     s0 = old_t / (i - 2)
-    return d * s1 + (1 - d) * s0
+    return -(d * s1 + (1 - d) * s0)
 
 
 def random_position():
     size = (50, 50)
-    limits = 100
+    limits = 200
 
     iterations = randint(3, 15)
     surf = np.empty(size)
@@ -111,15 +111,16 @@ def random_position():
         done = False
         while not done:
             x, y = randrange(1, size[0] - 1), randrange(1, size[1] - 1)
-            if surf[x, y] == limits:
+            if surf[x, y] < 0:
                 # we are inside, but are we on the border ?
                 for dx in (-1, 0, 1):
                     for dy in (-1, 0, 1):
                         # one of the neighbors is not in the set
-                        if surf[x + dx, y + dy] < limits:
+                        if surf[x + dx, y + dy] > 0:
                             done = True
         camera.center = camera.complex_at((x, y))
         camera.height /= 3
+    camera.height *= 3
 
     return camera
 
@@ -157,6 +158,8 @@ def compute(camera: SimpleCamera, limits, kind, out=None):
     """
     Compute the view of the Mandelbrot set defined by the camera.
 
+    The points inside the mandelbrot set always have a negative
+    value, whose range depends on the kind of coloring function
     This is a convenience function for _compute.
 
     :param limits: maximum number of iterations

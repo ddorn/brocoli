@@ -51,14 +51,15 @@ class GradientTab(MyTab):
         # grad = list(gradient(*"01ACD7 68C6C9 EFDC85 EB9821 9F290E".split(), loop=loop))
         # grad = list(gradient(*"000000 ff0000 000000 ffffff".split(), loop=loop))
         # grad = list(gradient(*"78ACDA 143986 0F1529 226197 8F82E2".split(), loop=loop))
-        grad = list(gradient(*"1F1D21 108D90 F5B33E FA7252 DA4D3F".split(), loop=loop))
-
-
-
-        image = apply_gradient(fractal, grad)
+        # grad = list(gradient(*"1F1D21 108D90 F5B33E FA7252 DA4D3F".split(), loop=loop))
+        grad = list(gradient(*"10182D 080908 D0490C DCAF14 F7EE51".split(), loop=loop))
+        grad = list(gradient(*"236261 14A087 93CC9D FDC97E ED3533".split(), loop=loop))
+        # grad = list(gradient(*"E16E59 EAC7A2 B5CB81 759F6E 554540".split(), loop=loop))
 
         if black_inside:
-            image[self.fractal >= self.brocoli.camera_tab.steps] = BLACK
+            image = apply_gradient(fractal, grad, inside=BLACK)
+        else:
+            image = apply_gradient(abs(fractal), grad)
 
         if cache:
             self.colored_fractal = image

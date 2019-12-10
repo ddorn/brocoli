@@ -10,6 +10,7 @@ class CameraTab(MyTab):
     kind = NumericProperty(1)
     pixel_size = NumericProperty()
     steps = NumericProperty(42)
+    bound = NumericProperty(10)
     camera = ObjectProperty(SimpleCamera((42, 42), -0.75, 3), rebind=True)
     fractal = ObjectProperty(force_dispatch=True, allownone=True)
 
@@ -34,6 +35,7 @@ class CameraTab(MyTab):
 
         :steps: max number of steps to compute the fractal for
         :kind: type of coloration method
+        :bound: bound where the sequence is divergent
         :camera: override the camera
         :height: override camera.height
         :center: override camera.center
@@ -48,6 +50,7 @@ class CameraTab(MyTab):
 
         steps = kwargs.pop('steps', self.steps)
         kind = kwargs.pop('kind', self.kind)
+        bound = kwargs.pop('bound', self.bound)
         camera = kwargs.pop('camera', self.camera)
         size = kwargs.pop('size', camera.size)
         height = kwargs.pop('height', camera.height)

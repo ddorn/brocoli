@@ -6,6 +6,7 @@
     steps: int(2 ** steps_slider.value)
     pixel_size: pixel_slider.value
     kind: kind_slider.value
+    bound: int(2 ** bound_slider.value)
 
 
     BoxLayout:
@@ -21,7 +22,7 @@
             value: 1
 
         LabeledSlider:
-            text: "Steps"
+            text: "Steps log"
             id: steps_slider
             min: 5
             max: 14
@@ -34,10 +35,17 @@
             value: 1
             step: 1
 
+        LabeledSlider:
+            text: "Bound log"
+            id: bound_slider
+            min: 1
+            max: 30
+            value: 10
+
 
         Label:
             # For better spacing
-            size_hint_y: 8
+            size_hint_y: 7
 
         MDRaisedButton:
             text: "Random position"
