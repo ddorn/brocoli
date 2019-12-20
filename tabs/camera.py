@@ -48,6 +48,7 @@ class CameraTab(MyTab):
         # if no keyword, cache the fractal it is the one for the view
         cache = kwargs.pop('cache', len(kwargs) == 0)
 
+        pixel_size = kwargs.pop('pixel_size', self.pixel_size)
         steps = kwargs.pop('steps', self.steps)
         kind = kwargs.pop('kind', self.kind)
         bound = kwargs.pop('bound', self.bound)
@@ -55,7 +56,8 @@ class CameraTab(MyTab):
         size = kwargs.pop('size', camera.size)
         height = kwargs.pop('height', camera.height)
         center = kwargs.pop('center', camera.center)
-        camera = SimpleCamera(size, center, height)
+        real_size = size[0] // pixel_size, size[1] // pixel_size
+        camera = SimpleCamera(real_size, center, height)
 
         if kwargs:
             print(f"Warning: CameraTab had unknown kwargs {tuple(kwargs.keys())}.")
@@ -70,6 +72,13 @@ class CameraTab(MyTab):
 
     def on_view_size_change(self, new_size):
         self.camera.size = int(new_size[0] / self.pixel_size), int(new_size[1] / self.pixel_size)
+
+    def set_camera_center(self, text):
+        try:
+            self.camera.center = complex(text)
+            return True
+        except ValueError:
+            print(f"{text} is not a valid complex")
 
     def set_random_position(self, *args):
         new_camera = random_position()

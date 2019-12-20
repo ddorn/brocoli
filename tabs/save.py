@@ -42,7 +42,7 @@ class SaveTab(MyTab):
 
     def save(self, *args):
 
-        fractal = self.brocoli.camera_tab.process(size=self.resolution)
+        fractal = self.brocoli.camera_tab.process(size=self.resolution, pixel_size=1)
         preproc_fractal = self.brocoli.preproc_tab.process(fractal=fractal)
         colored_fractal = self.brocoli.gradient_tab.process(fractal=preproc_fractal)
 

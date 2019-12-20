@@ -11,8 +11,9 @@
 
     BoxLayout:
         orientation: "vertical"
-        MDLabel:
+        MDTextField:
             text: str(root.camera.center)
+            on_text_validate: root.set_camera_center(self.text)
         LabeledSlider:
             text: "Pixel size"
             id: pixel_slider
