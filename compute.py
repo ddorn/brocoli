@@ -14,12 +14,15 @@ __all__ = ['compute']
 
 @njit(cache=True)
 def f(z, c):
+    # return z * z + -0.7487144+0.06478j
+    # return z * z + 0.40925-0.21053j
+    # return z * z + -0.10116598-0.8358299j
     return z * z + c
 
 
 @njit(cache=True)
 def escape(c, limit=50, f=f):
-    z = 0j
+    z = c
     for i in range(1, limit):
         z = f(z, c)
         if abs(z) > 2:
@@ -30,7 +33,7 @@ def escape(c, limit=50, f=f):
 @njit(cache=True)
 def escape_smooth(c, limit=50, f=f):
     bound = 100
-    z = 0j
+    z = c
     for i in range(1, limit):
         z = f(z, c)
         if abs(z) > bound:
@@ -40,7 +43,7 @@ def escape_smooth(c, limit=50, f=f):
 
 @njit(cache=True)
 def escape_angle(c, limit=50, f=f):
-    z = 0j
+    z = c
     orbit = [z]
 
     for i in range(1, limit):
