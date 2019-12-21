@@ -4,7 +4,7 @@ from colorsys import hsv_to_rgb
 from datetime import datetime
 from os import path
 
-from PIL import Image
+from PIL import Image, ImageFilter
 from kivy.clock import Clock
 from kivy.lang import Builder
 from kivy.properties import NumericProperty, StringProperty, ObjectProperty
@@ -52,10 +52,14 @@ class Brocoli(Widget):
             return
         
         image = Image.fromarray(self.colored_fractal.swapaxes(0, 1), mode='RGB')
-
+        if self.camera_tab.pixel_size > 1:
+            size = int(self.image.size[0]), int(self.image.size[1])
+            image = image.resize(size)
         image.save("frac.png")
         self.image.source = "frac.png"
         self.image.reload()
+        self.image.mag_filter = 'nearest'
+        # self.image.texture.min_filter = 'nearest'
         print('updated !')
 
 

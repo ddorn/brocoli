@@ -48,6 +48,35 @@
             # For better spacing
             size_hint_y: 7
 
+        BoxLayout:
+            orientation: "horizontal"
+            MDIconButton:
+                size_hint_x: 1/6
+                icon: "plus"
+                on_press: root.camera.height /= 1.4
+            MDIconButton:
+                size_hint_x: 1/6
+                icon: "minus"
+                on_press: root.camera.height *= 1.4
+            MDIconButton:
+                size_hint_x: 1/6
+                icon: "arrow-left"
+                on_press: root.camera.center -= root.camera.width / 5
+            MDIconButton:
+                size_hint_x: 1/6
+                icon: "arrow-right"
+                on_press: root.camera.center += root.camera.width / 5
+            MDIconButton:
+                size_hint_x: 1/6
+                icon: "arrow-up"
+                on_press: root.camera.center += root.camera.height / 5 * 1j
+            MDIconButton:
+                size_hint_x: 1/6
+                icon: "arrow-down"
+                on_press: root.camera.center -= root.camera.height / 5 * 1j
+
+
+
         MDRaisedButton:
             text: "Random position"
             on_release: root.set_random_position()
