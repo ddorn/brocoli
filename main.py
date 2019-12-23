@@ -58,7 +58,7 @@ class Brocoli(Widget):
         image.save("frac.png")
         self.image.source = "frac.png"
         self.image.reload()
-        self.image.mag_filter = 'nearest'
+        # self.image.mag_filter = 'nearest'
         # self.image.texture.min_filter = 'nearest'
         print('updated !')
 

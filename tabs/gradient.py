@@ -52,9 +52,12 @@ class GradientTab(MyTab):
         # grad = list(gradient(*"000000 ff0000 000000 ffffff".split(), loop=loop))
         # grad = list(gradient(*"78ACDA 143986 0F1529 226197 8F82E2".split(), loop=loop))
         # grad = list(gradient(*"1F1D21 108D90 F5B33E FA7252 DA4D3F".split(), loop=loop))
-        grad = list(gradient(*"10182D 080908 D0490C DCAF14 F7EE51".split(), loop=loop))
+        # grad = list(gradient(*"10182D 080908 D0490C DCAF14 F7EE51".split(), loop=loop))
         # grad = list(gradient(*"236261 14A087 93CC9D FDC97E ED3533".split(), loop=loop))
         # grad = list(gradient(*"FAFAFA F0CA32 F3431B 67221B 0B0C0D".split(), loop=loop))
+        # grad = list(gradient(*"0E0E0E 40160E C7341B E78F2A F6F5F2".split(), loop=loop))
+        # grad = list(gradient(*"244D5D 10A8D6 DCCDC1 C7794A CC4B3D".split(), loop=loop))
+        grad = list(gradient(*"073D52 10A8D6 F2E8DA F2903A B94C23".split(), loop=loop))
 
         if black_inside:
             image = apply_gradient(fractal, grad, inside=BLACK)

@@ -71,7 +71,7 @@ class CameraTab(MyTab):
             return fractal
 
     def on_view_size_change(self, new_size):
-        self.camera.size = int(new_size[0] / self.pixel_size), int(new_size[1] / self.pixel_size)
+        self.camera.size = int(new_size[0]), int(new_size[1])
 
     def set_camera_center(self, text):
         try:
