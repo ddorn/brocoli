@@ -1,13 +1,13 @@
 from kivy.clock import Clock
-from kivy.properties import ObjectProperty, NumericProperty
+from kivy.properties import ObjectProperty, NumericProperty, OptionProperty
 
 from camera import SimpleCamera
-from compute import random_position, compute
+from compute import random_position, compute, Coloration
 from tabs.base import MyTab
 
 
 class CameraTab(MyTab):
-    kind = NumericProperty(1)
+    kind = OptionProperty(Coloration.AVG_TRIANGLE_INEQUALITY, options=list(Coloration))
     pixel_size = NumericProperty()
     steps = NumericProperty(42)
     bound = NumericProperty(10)
@@ -16,14 +16,26 @@ class CameraTab(MyTab):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+        self.kind_items = [
+            {
+                "viewclass": "MDMenuItem",
+                "text": col.value,
+                "callback": self.set_kind,
+            }
+            for col in Coloration
+        ]
         # self.process()
         Clock.schedule_once(self.do_binds)
+
+    def set_kind(self, kind, *args):
+        self.kind = Coloration(kind)
 
     # def on_kind(self, *args):
     #     self.process()
 
     def do_binds(self, *args):
-        self.set_components_for_change("pixel_size kind steps camera".split())
+        self.set_components_for_change("pixel_size kind bound steps camera".split())
         self.camera.bind(on_change=self.process)
         self.bind(on_change=self.process)
 
@@ -63,7 +75,7 @@ class CameraTab(MyTab):
             print(f"Warning: CameraTab had unknown kwargs {tuple(kwargs.keys())}.")
 
         print("Computing fractal", camera, "steps:", steps)
-        fractal = compute(camera, steps, kind)
+        fractal = compute(camera, kind, limit=steps, bound=bound)
 
         if cache:
             self.fractal = fractal

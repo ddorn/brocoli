@@ -1,18 +1,21 @@
 #!/usr/bin/env python3
-
+from enum import Enum
 from math import log
 from random import randint, randrange
 
 import numpy as np
+from Xlib.Xcursorfont import bottom_left_corner
 from numba import njit, prange
 import click
 
 from camera import SimpleCamera
 
+__all__ = ['compute', 'random_position', 'Coloration', 'ESCAPE_FUNCTIONS']
 
-__all__ = ['compute']
+DEFAULT_BOUND = 200_000
 
-@njit(cache=True)
+
+@njit
 def f(z, c):
     # return z * z + -0.7487144+0.06478j
     # return z * z + 0.40925-0.21053j
@@ -20,20 +23,19 @@ def f(z, c):
     return z * z + c
 
 
-@njit(cache=True)
-def escape(c, limit=50, f=f):
-    z = c
+@njit
+def escape(z0, c, limit=50, bound=DEFAULT_BOUND, f=f):
+    z = z0
     for i in range(1, limit):
         z = f(z, c)
-        if abs(z) > 2:
+        if abs(z) > bound:
             return i
     return -limit
 
 
-@njit(cache=True)
-def escape_smooth(c, limit=50, f=f):
-    bound = 100
-    z = c
+@njit
+def escape_smooth(z0, c, limit=50, bound=DEFAULT_BOUND, f=f):
+    z = z0
     for i in range(1, limit):
         z = f(z, c)
         if abs(z) > bound:
@@ -41,9 +43,9 @@ def escape_smooth(c, limit=50, f=f):
     return -limit
 
 
-@njit(cache=True)
-def escape_angle(c, limit=50, f=f):
-    z = c
+@njit
+def escape_angle(z0, c, limit=50, bound=DEFAULT_BOUND, f=f):
+    z = z0
     orbit = [z]
 
     for i in range(1, limit):
@@ -60,14 +62,13 @@ def escape_angle(c, limit=50, f=f):
     return -abs(s) / len(orbit)
 
 
-@njit(cache=True)
-def escape_smoothfire(c, limit=50, f=f):
+@njit
+def escape_smoothfire(z0, c, limit=50, bound=DEFAULT_BOUND, f=f):
     ln12 = 1 / log(2)
-    bound = 200_000_000
     lnbound = log(bound)
 
     absc = abs(c)
-    z = c
+    z = z0
     absz = abs(z)
     t = old_t = i = 0
     for i in range(1, limit):
@@ -99,6 +100,71 @@ def escape_smoothfire(c, limit=50, f=f):
     return -(d * s1 + (1 - d) * s0)
 
 
+class Coloration(Enum):
+    TIME = 'escape time'
+    SMOOTH_TIME = 'smooth escape time'
+    ANGLE = 'angle'
+    AVG_TRIANGLE_INEQUALITY = 'average triangle inequality'
+
+
+ESCAPE_FUNCTIONS = {
+    Coloration.TIME: escape,
+    Coloration.SMOOTH_TIME: escape_smooth,
+    Coloration.ANGLE: escape_angle,
+    Coloration.AVG_TRIANGLE_INEQUALITY: escape_smoothfire
+}
+
+
+@njit(parallel=True)
+def _compute(out, escape_func, bottomleft, pixstep, limit, bound=100_000., julia=None):
+    """
+    Compute the escape time of each points of the surf.
+
+    The camera is positioned with bottomleft and the zoom with pixstep.
+    Limits is the maximum number of iterations.
+    """
+
+    w, h = out.shape
+    for x in prange(w):
+        for y in prange(h):
+            z0 = bottomleft + pixstep * complex(x, h - y -1)
+
+            if julia is None:
+                out[x, y] = escape_func(z0, z0, limit, bound)
+            else:
+                out[x, y] = escape_func(z0, julia, limit, bound)
+
+
+def compute(camera: SimpleCamera, kind: Coloration, out=None, limit=50, bound=DEFAULT_BOUND, julia=None):
+    """
+    Compute the view of the Mandelbrot set defined by the camera.
+
+    The points inside the mandelbrot set always have a negative
+    value, whose range depends on the kind of coloring function
+    This is a convenience function for _compute.
+
+    :param limits: maximum number of iterations
+    :param kind: type of coloration function
+    :param out: out array. If none is specified a new one is made.
+    :return: a ndarray of dimension :camera.size: with the values of the
+        coloring function on each complex point inside the frame.
+        If :out: is not None, then the return array is out.
+    """
+
+    if out is None:
+        # apparently we cannot create a numpy array of dynamic size inside a numba-compiled
+        # function, so we create it here if needed
+        out = np.empty(camera.size)
+    else:
+        assert tuple(
+            camera.size) == out.shape, f"The camera and out array have different sizes. {camera.size} != {out.shape}"
+
+    escape_func = ESCAPE_FUNCTIONS[kind]
+    _compute(out, escape_func, camera.bottomleft, camera.step, limit, bound, julia)
+
+    return out
+
+
 def random_position():
     size = (50, 50)
     limits = 200
@@ -108,7 +174,7 @@ def random_position():
     camera = SimpleCamera(size, -0.75, 3)
 
     for i in range(iterations):
-        compute(camera, limits, 0, out=surf)
+        compute(camera, Coloration.TIME, out=surf, limit=limits)
 
         # now we find a pixel on the border and zoom there
         done = False
@@ -128,62 +194,6 @@ def random_position():
     return camera
 
 
-@njit(parallel=True, cache=True)
-def _compute(out, bottomleft, pixstep, limits, kind=2):
-    """
-    Compute the escape time of each points of the surf.
-
-    The camera is positioned with bottomleft and the zoom with pixstep.
-    Limits is the maximum number of iterations.
-    """
-
-    w, h = out.shape
-    for x in prange(w):
-        a = bottomleft.real + pixstep * x
-        for y in prange(h):
-            b = bottomleft.imag + pixstep * (h - y - 1)
-
-            c = a + b * 1j
-
-            if kind == 1:
-                r = escape_smooth(c, limits)
-            elif kind == 2:
-                r = escape_angle(c, limits)
-            elif kind == 3:
-                r = escape_smoothfire(c, limits)
-            else:
-                r = escape(c, limits)
-
-            out[x, y] = r
-
-
-def compute(camera: SimpleCamera, limits, kind, out=None):
-    """
-    Compute the view of the Mandelbrot set defined by the camera.
-
-    The points inside the mandelbrot set always have a negative
-    value, whose range depends on the kind of coloring function
-    This is a convenience function for _compute.
-
-    :param limits: maximum number of iterations
-    :param kind:
-        0: traditional escape time
-        1: smooth escape time
-        2: bugged smooth escape time
-        3: triangle inequality average
-    :param out: out array. If none is specified a new one is made.
-    :return: a ndarray of dimension :camera.size: with the values of the
-        coloring function on each complex point inside the frame.
-        If :out: is not None, then the return array is out.
-    """
-
-    if out is None:
-        out = np.empty(camera.size)
-    else:
-        assert tuple(camera.size) == out.shape, f"The camera and out array have different sizes. {camera.size} != {out.shape}"
-    _compute(out, camera.bottomleft, camera.step, limits, kind)
-    return out
-
 @click.command()
 @click.argument('centerx', default=-0.75)
 @click.argument('centery', default=0.0)
@@ -198,7 +208,7 @@ def main(width, height, centerx, centery, zoom, out, show):
     camera = SimpleCamera(size, centerx + 1j * centery, zoom)
 
     print("Computing fractal")
-    surf = compute(camera, 100, 3)
+    surf = compute(camera, Coloration.AVG_TRIANGLE_INEQUALITY, limit=300)
 
     print(f"Saving to {out}.npy")
     np.save(out, surf)

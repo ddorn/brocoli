@@ -1,11 +1,13 @@
 #:kivy 1.11.1
 
+# Here a compulsory import
+#:import MDDropdownMenu kivymd.uix.menu.MDDropdownMenu
+
 <CameraTab>:
     text: "crosshairs-gps"
 
     steps: int(2 ** steps_slider.value)
     pixel_size: pixel_slider.value
-    kind: kind_slider.value
     bound: int(2 ** bound_slider.value)
 
 
@@ -29,20 +31,18 @@
             max: 14
 
         LabeledSlider:
-            text: "Coloration kind"
-            id: kind_slider
-            min: 0
-            max: 3
-            value: 1
-            step: 1
-
-        LabeledSlider:
             text: "Bound log"
             id: bound_slider
             min: 1
             max: 30
             value: 10
 
+        MDFillRoundFlatIconButton:
+            pos_hint: {"center_x": .5}
+            icon: 'chevron-down'
+            text: "Coloration"
+            size_hint_x: 0.9
+            on_release: MDDropdownMenu(items=root.kind_items, width_mult=3).open(self)
 
         Label:
             # For better spacing
