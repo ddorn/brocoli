@@ -7,7 +7,7 @@ class EventDispatcherExtension(EventDispatcher):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self._pause = False
+        self._pause = 0
         self._need_dispatch = False
         self.register_event_type('on_change')
 
@@ -28,11 +28,10 @@ class EventDispatcherExtension(EventDispatcher):
         self.dispatch('on_change')
 
     def __enter__(self):
-        self._pause = True
-        self._need_dispatch = False
+        self._pause += 1
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self._pause = False
-        if self._need_dispatch:
+        self._pause -= 1
+        if not self._pause and self._need_dispatch:
             self.dispatch_change("on resume")
             self._need_dispatch = False
