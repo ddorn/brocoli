@@ -41,8 +41,7 @@ class GradientTab(MyTab):
             print('Warning: GradientTab.process called without fractal.')
             return
 
-        # grad = list(gradient('#0F4152', '#59A07B', '#F7E491', '#EDB825', '#EB3615', loop=loop))
-        # grad = list(gradient('#7d451b', '#78bc61', '#e3d26f', '#e3d26f', loop=loop))
+        grad = list(gradient('#0F4152', '#59A07B', '#F7E491', '#EDB825', '#EB3615', loop=loop))
         # grad = list(gradient(*"D3AD2B D02C22 223336 326C67 187C25".split(), loop=loop))
         # grad = [hsv_to_RGB(h / 1000, 1 , 1) for h in range(1000)]
         # grad = list(gradient(*"39624D 63A26E C6B070 E47735 A62413".split(), loop=loop))
@@ -57,7 +56,8 @@ class GradientTab(MyTab):
         # grad = list(gradient(*"FAFAFA F0CA32 F3431B 67221B 0B0C0D".split(), loop=loop))
         # grad = list(gradient(*"0E0E0E 40160E C7341B E78F2A F6F5F2".split(), loop=loop))
         # grad = list(gradient(*"244D5D 10A8D6 DCCDC1 C7794A CC4B3D".split(), loop=loop))
-        grad = list(gradient(*"073D52 10A8D6 F2E8DA F2903A B94C23".split(), loop=loop))
+        # grad = list(gradient(*"073D52 10A8D6 F2E8DA F2903A B94C23".split(), loop=loop))
+        # grad = list(gradient(*"05435F 099086 71D280 EFE84D F4B842".split(), loop=loop))
 
         if black_inside:
             image = apply_gradient(fractal, grad, inside=BLACK)

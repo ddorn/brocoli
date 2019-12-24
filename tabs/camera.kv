@@ -9,10 +9,22 @@
     steps: int(2 ** steps_slider.value)
     pixel_size: pixel_slider.value
     bound: int(2 ** bound_slider.value)
-
+    julia_active: julia_switch.active
 
     BoxLayout:
         orientation: "vertical"
+        spacing: dp(10)
+        BoxLayout:
+            orientation: "horizontal"
+            MDLabel:
+                text: "Mandelbrot"
+            MDSwitch:
+                size_hint_x: None
+                width: dp(48)
+                id: julia_switch
+            MDLabel:
+                text: "Julia"
+
         MDTextField:
             text: str(root.camera.center)
             on_text_validate: root.set_camera_center(self.text)
@@ -75,10 +87,7 @@
                 icon: "arrow-down"
                 on_press: root.camera.center -= root.camera.height / 5 * 1j
 
-
-
         MDRaisedButton:
             text: "Random position"
             on_release: root.set_random_position()
             size_hint_x: 1
-

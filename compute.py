@@ -4,7 +4,6 @@ from math import log
 from random import randint, randrange
 
 import numpy as np
-from Xlib.Xcursorfont import bottom_left_corner
 from numba import njit, prange
 import click
 

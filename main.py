@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
 import os
 from colorsys import hsv_to_rgb
-from datetime import datetime
-from os import path
 
-from PIL import Image, ImageFilter
-from kivy.clock import Clock
+from PIL import Image
 from kivy.lang import Builder
 from kivy.properties import NumericProperty, StringProperty, ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
@@ -32,10 +29,10 @@ class LabeledSlider(BoxLayout):
 
 class Brocoli(Widget):
     # Tabs
-    camera_tab : CameraTab = ObjectProperty()
-    preproc_tab : PreprocTab = ObjectProperty()
-    gradient_tab : GradientTab = ObjectProperty()
-    save_tab : SaveTab = ObjectProperty()
+    camera_tab: CameraTab = ObjectProperty()
+    preproc_tab: PreprocTab = ObjectProperty()
+    gradient_tab: GradientTab = ObjectProperty()
+    save_tab: SaveTab = ObjectProperty()
 
     image = ObjectProperty(None)  # type: KivyImage
     colored_fractal = ObjectProperty(force_dispatch=True, allownone=True)
@@ -50,7 +47,7 @@ class Brocoli(Widget):
         if self.colored_fractal is None:
             print("Brocoli.on_colored_fractal was called with no fractal")
             return
-        
+
         image = Image.fromarray(self.colored_fractal.swapaxes(0, 1), mode='RGB')
         if self.camera_tab.pixel_size > 1:
             size = int(self.image.size[0]), int(self.image.size[1])
@@ -62,11 +59,11 @@ class Brocoli(Widget):
         # self.image.texture.min_filter = 'nearest'
         print('updated !')
 
-
     def on_touch_down(self, touch):
         if self.collide_point(touch.x, touch.y):
             self.camera_tab.camera.zoom(0.69, (touch.x, self.height - touch.y))
             return True
+
 
 class MainWidget(Widget):
     pass
@@ -88,6 +85,7 @@ class BrocoliApp(MDApp):
 
     def build(self):
         return MainWidget()
+
 
 if __name__ == '__main__':
     BrocoliApp().run()
