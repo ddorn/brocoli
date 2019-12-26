@@ -9,7 +9,7 @@ import click
 
 from camera import SimpleCamera
 
-__all__ = ['compute', 'random_position', 'Coloration', 'ESCAPE_FUNCTIONS']
+__all__ = ['compute', 'Coloration', 'ESCAPE_FUNCTIONS']
 
 DEFAULT_BOUND = 200_000
 
@@ -162,35 +162,6 @@ def compute(camera: SimpleCamera, kind: Coloration, out=None, limit=50, bound=DE
     _compute(out, escape_func, camera.bottomleft, camera.step, limit, bound, julia)
 
     return out
-
-
-def random_position():
-    size = (50, 50)
-    limits = 200
-
-    iterations = randint(3, 15)
-    surf = np.empty(size)
-    camera = SimpleCamera(size, -0.75, 3)
-
-    for i in range(iterations):
-        compute(camera, Coloration.TIME, out=surf, limit=limits)
-
-        # now we find a pixel on the border and zoom there
-        done = False
-        while not done:
-            x, y = randrange(1, size[0] - 1), randrange(1, size[1] - 1)
-            if surf[x, y] < 0:
-                # we are inside, but are we on the border ?
-                for dx in (-1, 0, 1):
-                    for dy in (-1, 0, 1):
-                        # one of the neighbors is not in the set
-                        if surf[x + dx, y + dy] > 0:
-                            done = True
-        camera.center = camera.complex_at((x, y))
-        camera.height /= 3
-    camera.height *= 3
-
-    return camera
 
 
 @click.command()

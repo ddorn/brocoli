@@ -6,9 +6,9 @@
 <CameraTab>:
     text: "crosshairs-gps"
 
-    steps: int(2 ** steps_slider.value)
+    steps: steps_slider.value
     pixel_size: pixel_slider.value
-    bound: int(2 ** bound_slider.value)
+    bound: bound_slider.value
     julia_active: julia_switch.active
 
     BoxLayout:
@@ -36,18 +36,20 @@
             step: 1
             value: 1
 
-        LabeledSlider:
-            text: "Steps log"
+        LogLabeledSlider:
+            text: "Steps"
+            value: root.steps
             id: steps_slider
             min: 5
             max: 14
+            value: root.steps
 
-        LabeledSlider:
-            text: "Bound log"
+        LogLabeledSlider:
+            text: "Bound"
             id: bound_slider
             min: 1
             max: 30
-            value: 10
+            value: root.bound
 
         MDFillRoundFlatIconButton:
             pos_hint: {"center_x": .5}

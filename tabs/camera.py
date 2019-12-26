@@ -2,7 +2,8 @@ from kivy.clock import Clock
 from kivy.properties import ObjectProperty, NumericProperty, OptionProperty, BooleanProperty
 
 from camera import SimpleCamera
-from compute import random_position, compute, Coloration
+from compute import compute, Coloration
+from random_fractal import random_position
 from tabs.base import MyTab
 
 
@@ -29,30 +30,35 @@ class CameraTab(MyTab):
             for col in Coloration
         ]
         # self.process()
-        Clock.schedule_once(self.do_binds)
+        Clock.schedule_once(self.finish_init)
 
     def set_kind(self, kind, *args):
         self.kind = Coloration(kind)
+
+    def set_camera_pov(self, center, height):
+        with self.camera:
+            self.camera.center = center
+            self.camera.height = height
 
     def on_julia_active(self, sender, julia):
         if julia:
             self.saved_camera = SimpleCamera(self.camera.size, self.camera.center, self.camera.height)
             self.julia_c = self.camera.center
 
-            with self.camera:
-                self.camera.center = 0j
-                self.camera.height = 3
+            self.set_camera_pov(0j, 3)
         else:
-            with self.camera:
-                self.camera.center = self.saved_camera.center
-                self.camera.height = self.saved_camera.height
+            self.set_camera_pov(self.saved_camera.center, self.saved_camera.height)
 
 
 
-    def do_binds(self, *args):
+    def finish_init(self, *args):
+        self.bound = 20_000
+        self.steps = 256
+
         self.set_components_for_change("pixel_size kind bound julia_c julia_active steps camera".split())
-        self.camera.bind(on_change=self.process)
+        self.camera.bind(on_change=self.dispatch_change)
         self.bind(on_change=self.process)
+
 
     def process(self, *args, **kwargs):
         """

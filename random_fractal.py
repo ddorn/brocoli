@@ -1,0 +1,117 @@
+from random import choice, randint, randrange, random
+
+import requests
+import  numpy as np
+from kivy.utils import get_random_color
+
+from camera import SimpleCamera
+from colorize import signed_normalize_ip, apply_gradient, normalize_quantiles
+from colors import gradient
+from compute import Coloration, compute
+
+
+def random_color():
+    return randint(0, 255), randint(0, 255), randint(0, 255)
+
+
+def random_kind():
+    return choice([Coloration.SMOOTH_TIME, Coloration.AVG_TRIANGLE_INEQUALITY])
+    return choice([e for e in Coloration if e != Coloration.ANGLE])
+
+
+def random_position():
+    size = (50, 50)
+    limits = 200
+
+    iterations = randint(3, 15)
+    surf = np.empty(size)
+    camera = SimpleCamera(size, -0.75, 3)
+
+    for i in range(iterations):
+        compute(camera, Coloration.TIME, out=surf, limit=limits)
+
+        # now we find a pixel on the border and zoom there
+        done = False
+        while not done:
+            x, y = randrange(1, size[0] - 1), randrange(1, size[1] - 1)
+            if surf[x, y] < 0:
+                # we are inside, but are we on the border ?
+                for dx in (-1, 0, 1):
+                    for dy in (-1, 0, 1):
+                        # one of the neighbors is not in the set
+                        if surf[x + dx, y + dy] > 0:
+                            done = True
+        camera.center = camera.complex_at((x, y))
+        camera.height /= 3
+    camera.height *= 3
+
+    return camera
+
+
+def random_gradient():
+    # grad = list(gradient('#0F4152', '#59A07B', '#F7E491', '#EDB825', '#EB3615', loop=True))
+    # return grad
+
+    data = '{"model":"default"}'
+
+    result = requests.post('http://colormind.io/api/', data=data)
+    points = result.json()['result']
+    return list(gradient(*points, steps=1000, loop=True))
+
+
+def optimal_limit(camera):
+    camera = SimpleCamera((50, 50), camera.center, camera.height)
+
+    # we use a dichotomy on n to find which 2**n
+    # there is less than 50 pixels that changes in a 50x50 image
+    n = 6
+    last = 0
+    while n < 13:
+        n += 1
+        new = compute(camera, Coloration.TIME, limit=2**n)
+
+        escaped = (new > 0).sum()
+        print(escaped)
+        if escaped - last < 30 and escaped > 0:
+            break
+
+        last = escaped
+
+    return 2**n
+
+
+def random_fractal(size=(1920, 1080)):
+    camera = random_position()
+    print('Random pos:', camera)
+
+    gradient = random_gradient()
+    print('Random gradient done')
+
+    limit = optimal_limit(camera)
+    print('Optimal limit:', limit)
+
+    kind = random_kind()
+    print('Random kind:', kind)
+
+    speed = 1 + (kind == Coloration.SMOOTH_TIME)
+    camera.size = size
+
+    frac = compute(camera, kind, limit=limit)
+    if kind != Coloration.AVG_TRIANGLE_INEQUALITY:
+        frac = normalize_quantiles(frac, 1000)
+
+    signed_normalize_ip(frac, speed)
+
+    if random() < 0.5:
+        frac = apply_gradient(abs(frac), gradient)
+    else:
+        inside = random_color()
+        frac = apply_gradient(frac, gradient, inside=inside)
+    return frac
+
+
+if __name__ == '__main__':
+    from PIL import Image
+    frac = random_fractal()
+    image = Image.fromarray(frac.swapaxes(0, 1), mode='RGB')
+    image.save('random_fractal.png')

@@ -29,6 +29,7 @@ def apply_gradient(surf: np.ndarray, gradient, speed=1.0, offset=0.0, inside=Non
 
     return out
 
+
 def normalize_quantiles(surf, nb, exclude_inside=True):
     """
     Discretize the array such that every number has approximately the same area.
@@ -52,6 +53,55 @@ def normalize_quantiles(surf, nb, exclude_inside=True):
 
     return new.reshape(surf.shape)
 
+
+def signed_normalize_ip(fractal, speed=1.0, offset=0.0):
+    """
+    Normalize a fractal and keep the the sign of each value.
+
+    Negative numbers are mapped to [-1, 0] and positive to [0, 1]
+    The speed and offset rotate the normalized values.
+
+    :param speed: rotation stretch
+    :param offset: rotation
+    :return: a ndarray with valuesbetween -1 and 1
+    """
+
+    pos = fractal[fractal >= 0]
+    neg = fractal[fractal < 0]
+
+    if pos.size > 0:
+        mini = np.nanmin(pos)
+        maxi = np.nanmax(pos)
+        if mini != maxi:
+            pos[:] = (pos - mini) / (maxi - mini)
+            pos[:] = (pos * speed + offset) % 1.0
+        else:
+            pos[:] = 1
+
+    if neg.size > 0:
+        mini = np.nanmin(neg)
+        maxi = np.nanmax(neg)
+        if mini != maxi:
+            neg[:] = (neg - maxi) / (maxi - mini)
+            neg[:] = (neg * speed + offset) % 1.0 - 1
+        else:
+            neg[:] = -1
+
+        assert (neg <= 0).all()
+
+    fractal[fractal >= 0] = pos
+    fractal[fractal < 0] = neg
+
+
+def signed_power(fractal, power):
+    """
+    Raise every point to the given power, keeping the sign.
+
+    :return: abs(fractal) ** power * sign(fractal)
+    """
+    return abs(fractal) ** power * np.sign(fractal)
+
+
 if __name__ == '__main__':
     from matplotlib import pyplot as plt
 
@@ -61,12 +111,12 @@ if __name__ == '__main__':
     out = apply_gradient(surf, grad)
 
     from PIL import Image
-    im = Image.fromarray(out.swapaxes(0,1), 'RGB')
+
+    im = Image.fromarray(out.swapaxes(0, 1), 'RGB')
     im.show(command='feh')
     quit()
 
     import seaborn as sns
-    ax = sns.heatmap(out.swapaxes(0,1))
+
+    ax = sns.heatmap(out.swapaxes(0, 1))
     plt.show()
-
-

@@ -1,7 +1,8 @@
 import numpy as np
+from kivy.clock import Clock
 from kivy.properties import NumericProperty, BooleanProperty, ReferenceListProperty, ObjectProperty
 
-from colorize import normalize_quantiles
+from colorize import normalize_quantiles, signed_normalize_ip, signed_power
 from tabs.base import MyTab
 
 
@@ -23,6 +24,8 @@ class PreprocTab(MyTab):
         super().__init__(**kwargs)
 
         self.bind(any=self.process, fractal=self.process)
+        def f(*a): self.steps_power = 1
+        Clock.schedule_once(f, 0)
 
     def process(self, *args, **kwargs):
 
@@ -54,36 +57,10 @@ class PreprocTab(MyTab):
 
         if steps_power not in (0, 1):
             # signed power
-            fractal = abs(fractal) ** steps_power * np.sign(fractal)
+            fractal = signed_power(fractal, steps_power)
 
-        # put fractal between 0 and 1
-        pos = fractal[fractal >= 0]
-        neg = fractal[fractal < 0]
-
-        if pos.size > 0:
-            mini = np.nanmin(pos)
-            maxi = np.nanmax(pos)
-            if mini != maxi:
-                pos[:] = (pos - mini) / (maxi - mini)
-                pos[:] = (pos * speed + offset) % 1.0
-            else:
-                pos[:] = 1
-
-        if neg.size > 0:
-            mini = np.nanmin(neg)
-            maxi = np.nanmax(neg)
-            if mini != maxi:
-                neg[:] = (neg - maxi) / (maxi - mini)
-                neg[:] = (neg * speed + offset) % 1.0 - 1
-            else:
-                neg[:] = -1
-
-            assert (neg <= 0).all()
-
-        fractal[fractal >= 0] = pos
-        fractal[fractal < 0] = neg
-
-        print(np.nanmin(fractal), np.nanmax(fractal))
+        # put fractal between -1 and 1
+        signed_normalize_ip(fractal, speed, offset)
 
         if cache:
             self.preproc_fractal = fractal

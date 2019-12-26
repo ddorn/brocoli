@@ -10,6 +10,8 @@ from kivy.uix.image import Image as KivyImage
 from kivy.uix.widget import Widget
 from kivymd.app import MDApp
 
+from compute import Coloration
+from random_fractal import random_fractal, random_position, optimal_limit, random_kind, random_gradient
 from tabs import *
 
 
@@ -19,6 +21,14 @@ def hsv_to_RGB(h, s, v):
 
 
 class LabeledSlider(BoxLayout):
+    min = NumericProperty()
+    max = NumericProperty()
+    default = NumericProperty()
+    value = NumericProperty()
+    text = StringProperty()
+    step = NumericProperty()
+
+class LogLabeledSlider(BoxLayout):
     min = NumericProperty()
     max = NumericProperty()
     default = NumericProperty()
@@ -37,33 +47,51 @@ class Brocoli(Widget):
     image = ObjectProperty(None)  # type: KivyImage
     colored_fractal = ObjectProperty(force_dispatch=True, allownone=True)
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
     def on_size(self, *args):
         self.camera_tab.on_view_size_change(self.size)
+
+    def update_image_from_array(self, fractal):
+        image = Image.fromarray(fractal.swapaxes(0, 1), mode='RGB')
+        if image.size != self.int_size:
+            image = image.resize(self.int_size)
+        image.save("frac.png")
+        self.image.source = "frac.png"
+        self.image.reload()
 
     def on_colored_fractal(self, *args):
         if self.colored_fractal is None:
             print("Brocoli.on_colored_fractal was called with no fractal")
             return
 
-        image = Image.fromarray(self.colored_fractal.swapaxes(0, 1), mode='RGB')
-        if self.camera_tab.pixel_size > 1:
-            size = int(self.image.size[0]), int(self.image.size[1])
-            image = image.resize(size)
-        image.save("frac.png")
-        self.image.source = "frac.png"
-        self.image.reload()
-        # self.image.mag_filter = 'nearest'
-        # self.image.texture.min_filter = 'nearest'
+        self.update_image_from_array(self.colored_fractal)
         print('updated !')
 
+    def random_fractal(self, *args):
+        with self.gradient_tab:
+            with self.preproc_tab:
+                with self.camera_tab:
+                    camera = random_position()
+                    self.camera_tab.set_camera_pov(camera.center, camera.height)
+                    self.camera_tab.steps = optimal_limit(camera)
+                    self.camera_tab.kind = random_kind()
+                self.preproc_tab.speed = 2
+                self.preproc_tab.offset = 0
+                self.preproc_tab.normalize_quantiles = self.camera_tab.kind == Coloration.SMOOTH_TIME
+            self.gradient_tab.gradient = random_gradient()
+            self.gradient_tab.black_inside = False
+        print('Randomly updated !')
+
     def on_touch_down(self, touch):
+        if super(Brocoli, self).on_touch_down(touch):
+            return True
+
         if self.collide_point(touch.x, touch.y):
             self.camera_tab.camera.zoom(0.69, (touch.x, self.height - touch.y))
             return True
 
+    @property
+    def int_size(self):
+        return int(self.size[0]), int(self.size[1])
 
 class MainWidget(Widget):
     pass

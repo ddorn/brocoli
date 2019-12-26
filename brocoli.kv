@@ -1,4 +1,6 @@
 #:kivy 1.11.1
+#:import randint random.randint
+#:import log math.log
 
 <MainWidget>:
     BoxLayout:
@@ -24,7 +26,12 @@
                 size: self.parent.size
                 source: "frac.png"
                 allow_stretch: True
-                mipmap: True
+
+            MDFloatingActionButton:
+                icon: 'dice-4'
+                y: dp(20)
+                x: self.parent.width - self.width - dp(20)
+                on_press: self.icon = 'dice-' + str(randint(1, 6)); brocoli.random_fractal()
 
         MDTabs:
             size_hint_x: 0.3
@@ -50,7 +57,7 @@
     value: slider.value
     MDLabel:
         size_hint_x: 0.4
-        text: self.parent.text + " ({}) :".format(round(slider.value, 2))
+        text: self.parent.text + " ({}) :".format(round(root.value, 2))
     MDSlider:
         id: slider
         size_hint_x: 0.6
@@ -58,6 +65,20 @@
         max: self.parent.max
         value: self.parent.value
         step: self.parent.step
+
+<LogLabeledSlider>:
+    value: int(round(2**slider.value))
+    MDLabel:
+        size_hint_x: 0.4
+        text: self.parent.text + " ({}) :".format(root.value)
+    MDSlider:
+        id: slider
+        size_hint_x: 0.6
+        min: self.parent.min
+        max: self.parent.max
+        value: log(self.parent.value, 2)
+        step: self.parent.step
+
 
 <MDLabel>:
     halign: "center"
