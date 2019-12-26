@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-
+from contextlib import contextmanager
 from random import choice, randint, randrange, random
+from time import time
 
 import numpy as np
 import requests
@@ -98,7 +99,6 @@ def optimal_limit(camera):
         new = compute(camera, Coloration.TIME, limit=2**n)
 
         escaped = (new > 0).sum()
-        print(escaped)
         if escaped - last < 30 and escaped > 0:
             break
 
@@ -107,38 +107,61 @@ def optimal_limit(camera):
     return 2**n
 
 
+@contextmanager
+def timeit(text=''):
+    t = time()
+    if text:
+        print(f'{text}...' + ' '*(21 - len(text)), end='')
+    yield
+    print(f'{round(time() - t, 2)}s')
+
+
 def random_fractal(size=(1920, 1080)):
-    camera = random_position()
-    print('Random pos:', camera)
 
-    gradient = random_gradient()
-    print('Random gradient done')
 
-    limit = optimal_limit(camera)
-    print('Optimal limit:', limit)
+    with timeit('Finding view point'):
+        camera = random_position()
+
+    with timeit('Random gradient'):
+        gradient = random_gradient()
+
+    with timeit('Optimal limit'):
+        limit = optimal_limit(camera)
+    print('Limit:', limit)
 
     kind = random_kind()
-    print('Random kind:', kind)
-
     speed = 1 + (kind == Coloration.SMOOTH_TIME)
     camera.size = size
 
-    frac = compute(camera, kind, limit=limit)
-    if kind != Coloration.AVG_TRIANGLE_INEQUALITY:
-        frac = normalize_quantiles(frac, 1000)
+    with timeit('Computing'):
+        frac = compute(camera, kind, limit=limit)
 
-    signed_normalize_ip(frac, speed)
+    with timeit('Pre-processing'):
+        if kind != Coloration.AVG_TRIANGLE_INEQUALITY:
+            frac = normalize_quantiles(frac, 1000)
 
-    if random() < 0.5:
-        frac = apply_gradient(abs(frac), gradient)
-    else:
-        inside = random_color()
-        frac = apply_gradient(frac, gradient, inside=inside)
+        signed_normalize_ip(frac, speed)
+
+    with timeit('Coloring'):
+        if random() < 0.5:
+            frac = apply_gradient(abs(frac), gradient)
+        else:
+            inside = random_color()
+            frac = apply_gradient(frac, gradient, inside=inside)
+
     return frac
 
 
 if __name__ == '__main__':
     from PIL import Image
-    frac = random_fractal()
-    image = Image.fromarray(frac.swapaxes(0, 1), mode='RGB')
-    image.save('random_fractal.png')
+    with timeit('Total'):
+        print()
+        frac = random_fractal()
+
+        image = Image.fromarray(frac.swapaxes(0, 1), mode='RGB')
+
+        name = 'random_fractal.png'
+        with timeit('Saving'):
+            image.save(name)
+        print(f'Saved as {name}')
+        print('Done.')
