@@ -165,3 +165,5 @@ if __name__ == '__main__':
             image.save(name)
         print(f'Saved as {name}')
         print('Done.')
+
+    image.show()
