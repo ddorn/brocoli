@@ -1,9 +1,34 @@
+from colorsys import rgb_to_hsv, hsv_to_rgb
+
+
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 
 
 def mix(a, b, f):
     return [round(aa * (1-f) + bb * f ) for aa, bb in zip(a, b)]
+
+
+def hsv_mix(a, b, f):
+    if abs(a[0] - b[0]) < 0.5:
+        h = a[0] * (1 - f) + b[0] * f
+    elif a[0] > b[0]:
+        h = (a[0] * (1 - f) + (b[0] + 1) * f) % 1
+    else:
+        h = (a[0] * (1 - f) + (b[0] - 1) * f) % 1
+
+    s = a[1] * (1 - f) + b[1] * f
+    v = a[2] * (1 - f) + b[2] * f
+    return h, s, v
+
+
+def hsv_to_RGB(h, s, v):
+    r, g, b = hsv_to_rgb(h, s, v)
+    return int(255 * r), int(255 * g), int(255 * b)
+
+
+def RGB_to_hsv(r, g, b):
+    return rgb_to_hsv(r / 255, g / 255, b / 255)
 
 
 def gradient(*colors, steps=256, loop=False):
@@ -17,6 +42,8 @@ def gradient(*colors, steps=256, loop=False):
     if loop:
         colors.append(colors[0])
 
+    colors = [RGB_to_hsv(*c) for c in colors]
+
     nb_segments = len(colors) - 1
     a = colors[0]
     b = colors[1]
@@ -26,8 +53,12 @@ def gradient(*colors, steps=256, loop=False):
         if pos > segment / nb_segments:
             segment += 1
             a, b = b, colors[segment]
-        seg_pos = pos * nb_segments - (segment - 1)
-        c = mix(a, b, seg_pos)
+        seg_pos = f = pos * nb_segments - (segment - 1)
+
+        if abs(a[0] - b[0]) < 1/3:
+            c = hsv_to_RGB(*hsv_mix(a, b, f))
+        else:
+            c = mix(hsv_to_RGB(*a), hsv_to_RGB(*b), seg_pos)
         yield c
 
 def hex2rgb(color: str):

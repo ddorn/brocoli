@@ -20,7 +20,8 @@ And run it with:
 ### Thanks
 
 First of all, thanks to Benoit Mandelbrot for revealing
-this beauty to the world.
+beauty od fractals to the world and then to Gaston Julia and Pierre Fatou
+for their discovery of the Mandelbrot set.
 Thanks also to Numpy and [Numba](https://github.com/numba/numba)
 that compiles (JIT) the python code to compute the Mandelbrot set and
 make it run two orders of magnitude faster.

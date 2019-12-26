@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import os
-from colorsys import hsv_to_rgb
 
 from PIL import Image
 from kivy.lang import Builder
@@ -11,13 +10,8 @@ from kivy.uix.widget import Widget
 from kivymd.app import MDApp
 
 from compute import Coloration
-from random_fractal import random_fractal, random_position, optimal_limit, random_kind, random_gradient
+from random_fractal import random_position, optimal_limit, random_kind, random_gradient
 from tabs import *
-
-
-def hsv_to_RGB(h, s, v):
-    r, g, b = hsv_to_rgb(h, s, v)
-    return int(255 * r), int(255 * g), int(255 * b)
 
 
 class LabeledSlider(BoxLayout):

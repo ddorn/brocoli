@@ -1,8 +1,9 @@
+#!/usr/bin/env python3
+
 from random import choice, randint, randrange, random
 
+import numpy as np
 import requests
-import  numpy as np
-from kivy.utils import get_random_color
 
 from camera import SimpleCamera
 from colorize import signed_normalize_ip, apply_gradient, normalize_quantiles
@@ -51,6 +52,32 @@ def random_position():
 def random_gradient():
     # grad = list(gradient('#0F4152', '#59A07B', '#F7E491', '#EDB825', '#EB3615', loop=True))
     # return grad
+
+    # light = ['ffffff']
+    # flash = []
+    # dark = ['1a202c']
+    # sexy_colors = 'ffa500 feb2b2 c53030 68d391 4fd1c5 3182ce 805ad5 d53f8c #fff200'.split()
+    #
+    # for c in sexy_colors:
+    #     c = hex2rgb(c)
+    #     h, s, v = rgb_to_hsv(c[0] / 255, c[1] / 255, c[2] / 255)
+    #
+    #     light.append(hsv_to_RGB(h, s, 0.9))
+    #     flash.append(hsv_to_RGB(h, s, v))
+    #     dark.append(hsv_to_RGB(h, s, 0.1))
+    #
+    # shuffle(light)
+    # shuffle(flash)
+    # shuffle(dark)
+    #
+    # colors = [light[0], *flash[:2], dark[0]]
+    # shuffle(colors)
+    #
+    # print(colors)
+    #
+    # return list(gradient(*colors, steps=1000, loop=True))
+    #
+    # return
 
     data = '{"model":"default"}'
 
