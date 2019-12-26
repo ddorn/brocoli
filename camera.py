@@ -1,26 +1,10 @@
-from kivy.event import EventDispatcher
-from kivy.properties import ObjectProperty, NumericProperty, ReferenceListProperty
-
-from dispatcher_extension import EventDispatcherExtension
-
-
-class SimpleCamera(EventDispatcherExtension):
-    center = ObjectProperty(0j)
-    height = NumericProperty(2)
-    w = NumericProperty()
-    h = NumericProperty()
-    size = ReferenceListProperty(w, h)
-
-
+class SimpleCamera:
     def __init__(self, size, center=0j, height=2, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.center = center
         self.height = height
         self.size = size
 
-        self.bind(center=self.dispatch_change,
-                  height=self.dispatch_change,
-                  size=self.dispatch_change)
         # self.set_components_for_change("center height size".split())
 
     def __str__(self) -> str:

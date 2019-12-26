@@ -1,10 +1,26 @@
 from kivy.clock import Clock
-from kivy.properties import ObjectProperty, NumericProperty, OptionProperty, BooleanProperty
+from kivy.properties import ObjectProperty, NumericProperty, OptionProperty, BooleanProperty, ReferenceListProperty
 
 from camera import SimpleCamera
 from compute import compute, Coloration
+from dispatcher_extension import EventDispatcherExtension
 from random_fractal import random_position
 from tabs.base import MyTab
+
+
+class EventDispatcherCamera(SimpleCamera, EventDispatcherExtension):
+    center = ObjectProperty(0j)
+    height = NumericProperty(2)
+    w = NumericProperty()
+    h = NumericProperty()
+    size = ReferenceListProperty(w, h)
+
+    def __init__(self, size, *args, **kwargs):
+        super().__init__(size, *args, **kwargs)
+
+        self.bind(center=self.dispatch_change,
+                  height=self.dispatch_change,
+                  size=self.dispatch_change)
 
 
 class CameraTab(MyTab):
@@ -12,7 +28,7 @@ class CameraTab(MyTab):
     pixel_size = NumericProperty()
     steps = NumericProperty(42)
     bound = NumericProperty(10)
-    camera : SimpleCamera = ObjectProperty(SimpleCamera((42, 42), -0.75, 3), rebind=True)
+    camera : EventDispatcherCamera = ObjectProperty(EventDispatcherCamera((42, 42), -0.75, 3), rebind=True)
     fractal = ObjectProperty(force_dispatch=True, allownone=True)
     julia_active = BooleanProperty(False)
     julia_c = ObjectProperty(0j)
