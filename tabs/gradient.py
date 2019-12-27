@@ -1,8 +1,8 @@
 from kivy.clock import Clock
 from kivy.properties import ObjectProperty, BooleanProperty, ReferenceListProperty
 
-from colorize import apply_gradient
-from colors import gradient, BLACK
+from processing.colorize import apply_gradient
+from processing.colors import gradient, BLACK
 from tabs.base import MyTab
 
 

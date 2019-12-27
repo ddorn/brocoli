@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 from enum import Enum
 from math import log
-from random import randint, randrange
 
 import numpy as np
 from numba import njit, prange
 import click
 
-from camera import SimpleCamera
+from processing.camera import SimpleCamera
 
 __all__ = ['compute', 'Coloration', 'ESCAPE_FUNCTIONS']
 

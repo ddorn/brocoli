@@ -9,8 +9,8 @@ from kivy.uix.image import Image as KivyImage
 from kivy.uix.widget import Widget
 from kivymd.app import MDApp
 
-from compute import Coloration
-from random_fractal import random_position, optimal_limit, random_kind, random_gradient
+from processing import Coloration
+from processing.random_fractal import random_position, optimal_limit, random_kind, random_gradient
 from tabs import *
 
 

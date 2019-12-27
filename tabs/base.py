@@ -2,7 +2,7 @@ from kivy.properties import ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivymd.uix.tab import MDTabsBase
 
-from dispatcher_extension import EventDispatcherExtension
+from tabs.dispatcher_extension import EventDispatcherExtension
 
 from typing import TYPE_CHECKING
 

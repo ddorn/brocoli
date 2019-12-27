@@ -6,10 +6,10 @@ from time import time
 import numpy as np
 import requests
 
-from camera import SimpleCamera
-from colorize import signed_normalize_ip, apply_gradient, normalize_quantiles
-from colors import gradient
-from compute import Coloration, compute
+from processing.camera import SimpleCamera
+from processing.colorize import signed_normalize_ip, apply_gradient, normalize_quantiles
+from processing.colors import gradient
+from processing.compute import Coloration, compute
 
 
 def random_color():

@@ -1,10 +1,10 @@
 from kivy.clock import Clock
 from kivy.properties import ObjectProperty, NumericProperty, OptionProperty, BooleanProperty, ReferenceListProperty
 
-from camera import SimpleCamera
-from compute import compute, Coloration
-from dispatcher_extension import EventDispatcherExtension
-from random_fractal import random_position
+from processing.camera import SimpleCamera
+from processing.compute import compute, Coloration
+from tabs.dispatcher_extension import EventDispatcherExtension
+from processing.random_fractal import random_position
 from tabs.base import MyTab
 
 
