@@ -1,5 +1,11 @@
 from kivy.clock import Clock
-from kivy.properties import ObjectProperty, NumericProperty, OptionProperty, BooleanProperty, ReferenceListProperty
+from kivy.properties import (
+    ObjectProperty,
+    NumericProperty,
+    OptionProperty,
+    BooleanProperty,
+    ReferenceListProperty,
+)
 
 from processing.camera import SimpleCamera
 from processing.compute import compute, Coloration
@@ -18,9 +24,11 @@ class EventDispatcherCamera(SimpleCamera, EventDispatcherExtension):
     def __init__(self, size, *args, **kwargs):
         super().__init__(size, *args, **kwargs)
 
-        self.bind(center=self.dispatch_change,
-                  height=self.dispatch_change,
-                  size=self.dispatch_change)
+        self.bind(
+            center=self.dispatch_change,
+            height=self.dispatch_change,
+            size=self.dispatch_change,
+        )
 
 
 class CameraTab(MyTab):
@@ -28,7 +36,9 @@ class CameraTab(MyTab):
     pixel_size = NumericProperty()
     steps = NumericProperty(42)
     bound = NumericProperty(10)
-    camera : EventDispatcherCamera = ObjectProperty(EventDispatcherCamera((42, 42), -0.75, 3), rebind=True)
+    camera: EventDispatcherCamera = ObjectProperty(
+        EventDispatcherCamera((42, 42), -0.75, 3), rebind=True
+    )
     fractal = ObjectProperty(force_dispatch=True, allownone=True)
     julia_active = BooleanProperty(False)
     julia_c = ObjectProperty(0j)
@@ -38,11 +48,7 @@ class CameraTab(MyTab):
         self.saved_camera = SimpleCamera((2, 2))
 
         self.kind_items = [
-            {
-                "viewclass": "MDMenuItem",
-                "text": col.value,
-                "callback": self.set_kind,
-            }
+            {"viewclass": "MDMenuItem", "text": col.value, "callback": self.set_kind,}
             for col in Coloration
         ]
         # self.process()
@@ -58,23 +64,24 @@ class CameraTab(MyTab):
 
     def on_julia_active(self, sender, julia):
         if julia:
-            self.saved_camera = SimpleCamera(self.camera.size, self.camera.center, self.camera.height)
+            self.saved_camera = SimpleCamera(
+                self.camera.size, self.camera.center, self.camera.height
+            )
             self.julia_c = self.camera.center
 
             self.set_camera_pov(0j, 3)
         else:
             self.set_camera_pov(self.saved_camera.center, self.saved_camera.height)
 
-
-
     def finish_init(self, *args):
         self.bound = 20_000
         self.steps = 256
 
-        self.set_components_for_change("pixel_size kind bound julia_c julia_active steps camera".split())
+        self.set_components_for_change(
+            "pixel_size kind bound julia_c julia_active steps camera".split()
+        )
         self.camera.bind(on_change=self.dispatch_change)
         self.bind(on_change=self.process)
-
 
     def process(self, *args, **kwargs):
         """
@@ -92,21 +99,21 @@ class CameraTab(MyTab):
         :return: ndarray of the computed mandelbrot
         """
 
-        print('CameraTab.process', kwargs)
+        print("CameraTab.process", kwargs)
 
         # if no keyword, cache the fractal it is the one for the view
-        cache = kwargs.pop('cache', len(kwargs) == 0)
+        cache = kwargs.pop("cache", len(kwargs) == 0)
 
-        pixel_size = kwargs.pop('pixel_size', self.pixel_size)
-        steps = kwargs.pop('steps', self.steps)
-        kind = kwargs.pop('kind', self.kind)
-        bound = kwargs.pop('bound', self.bound)
-        julia_active = kwargs.pop('julia_active', self.julia_active)
-        julia_c = kwargs.pop('julia_c', self.julia_c) if julia_active else None
-        camera = kwargs.pop('camera', self.camera)
-        size = kwargs.pop('size', camera.size)
-        height = kwargs.pop('height', camera.height)
-        center = kwargs.pop('center', camera.center)
+        pixel_size = kwargs.pop("pixel_size", self.pixel_size)
+        steps = kwargs.pop("steps", self.steps)
+        kind = kwargs.pop("kind", self.kind)
+        bound = kwargs.pop("bound", self.bound)
+        julia_active = kwargs.pop("julia_active", self.julia_active)
+        julia_c = kwargs.pop("julia_c", self.julia_c) if julia_active else None
+        camera = kwargs.pop("camera", self.camera)
+        size = kwargs.pop("size", camera.size)
+        height = kwargs.pop("height", camera.height)
+        center = kwargs.pop("center", camera.center)
         real_size = size[0] // pixel_size, size[1] // pixel_size
         camera = SimpleCamera(real_size, center, height)
 

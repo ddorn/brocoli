@@ -2,14 +2,12 @@ from kivy.event import EventDispatcher
 
 
 class EventDispatcherExtension(EventDispatcher):
-
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self._pause = 0
         self._need_dispatch = False
-        self.register_event_type('on_change')
+        self.register_event_type("on_change")
 
     def set_components_for_change(self, compl: list):
         # return NotImplemented
@@ -25,7 +23,7 @@ class EventDispatcherExtension(EventDispatcher):
 
         # print("dispatch change", self, args)
         # print(self, "CHAAAANGE", args)
-        self.dispatch('on_change')
+        self.dispatch("on_change")
 
     def __enter__(self):
         self._pause += 1

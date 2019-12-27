@@ -1,7 +1,12 @@
 from kivy.clock import Clock
-from kivy.properties import ObjectProperty, BooleanProperty, ReferenceListProperty, NumericProperty
+from kivy.properties import (
+    ObjectProperty,
+    BooleanProperty,
+    ReferenceListProperty,
+    NumericProperty,
+)
 
-from processing.colorize import apply_gradient, colorize
+from processing.colorize import colorize
 from processing.colors import gradient, BLACK
 from tabs.base import MyTab
 
@@ -13,12 +18,7 @@ class GradientTab(MyTab):
     speed = NumericProperty(1)
     offset = NumericProperty(0)
 
-
-
-    any = ReferenceListProperty(gradient,
-                                speed,
-                                offset,
-                                black_inside)
+    any = ReferenceListProperty(gradient, speed, offset, black_inside)
 
     preproc_fractal = ObjectProperty(force_dispatch=True, allownone=True)
     colored_fractal = ObjectProperty(force_dispatch=True, allownone=True)
@@ -26,8 +26,10 @@ class GradientTab(MyTab):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        loop=True
-        grad = list(gradient('#0F4152', '#59A07B', '#F7E491', '#EDB825', '#EB3615', loop=True))
+        loop = True
+        grad = list(
+            gradient("#0F4152", "#59A07B", "#F7E491", "#EDB825", "#EB3615", loop=True)
+        )
         # grad = list(gradient(*"D3AD2B D02C22 223336 326C67 187C25".split(), loop=loop))
         # grad = [hsv_to_RGB(h / 1000, 1 , 1) for h in range(1000)]
         # grad = list(gradient(*"39624D 63A26E C6B070 E47735 A62413".split(), loop=loop))
@@ -48,38 +50,42 @@ class GradientTab(MyTab):
         Clock.schedule_once(self.do_binds)
 
     def do_binds(self, *args):
-        self.set_components_for_change('any preproc_fractal'.split())
+        self.set_components_for_change("any preproc_fractal".split())
         self.bind(on_change=self.process)
 
     def process(self, *args, **kwargs):
 
-        print('GradientTab.process', kwargs)
+        print("GradientTab.process", kwargs)
 
         # if no keyword, cache the fractal it is the one for the view
-        cache = kwargs.pop('cache', len(kwargs) == 0)
+        cache = kwargs.pop("cache", len(kwargs) == 0)
 
-        fractal = kwargs.pop('fractal', self.preproc_fractal)
+        fractal = kwargs.pop("fractal", self.preproc_fractal)
         # loop = kwargs.pop('loop', self.loop)
-        gradient = kwargs.pop('gradient', self.gradient)
-        speed = kwargs.pop('speed', self.speed)
-        offset = kwargs.pop('offset', self.offset)
-        black_inside = kwargs.pop('black_inside', self.black_inside)
+        gradient = kwargs.pop("gradient", self.gradient)
+        speed = kwargs.pop("speed", self.speed)
+        offset = kwargs.pop("offset", self.offset)
+        black_inside = kwargs.pop("black_inside", self.black_inside)
 
         inside_color = BLACK if black_inside else None
 
         if kwargs:
-            print(f"Warning: GradientTab.process had unknown kwargs {tuple(kwargs.keys())}.")
+            print(
+                f"Warning: GradientTab.process had unknown kwargs {tuple(kwargs.keys())}."
+            )
 
         if fractal is None:
-            print('Warning: GradientTab.process called without fractal.')
+            print("Warning: GradientTab.process called without fractal.")
             return
 
-        image = colorize(fractal, gradient,
-                         speed=speed,
-                         offset=offset,
-                         inside_color=inside_color,
-                         color_count=None
-                         )
+        image = colorize(
+            fractal,
+            gradient,
+            speed=speed,
+            offset=offset,
+            inside_color=inside_color,
+            color_count=None,
+        )
 
         if cache:
             self.colored_fractal = image

@@ -27,7 +27,9 @@ class SimpleCamera:
         return self.center - self.complex_size / 2
 
     def complex_at(self, pixel):
-        return self.bottomleft + self.step * complex(pixel[0], (self.size[1] - pixel[1]))
+        return self.bottomleft + self.step * complex(
+            pixel[0], (self.size[1] - pixel[1])
+        )
 
     def zoom(self, zoom, pixel):
         before = self.complex_at(pixel)

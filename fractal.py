@@ -10,6 +10,7 @@ Color = Tuple[int, int, int]
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 
+
 @dataclass
 class Fractal:
     # View
@@ -25,27 +26,35 @@ class Fractal:
     gradient_points: List[Color] = (BLACK, WHITE)
     color_count = 1000
     gradient_loop: bool = False
-    gradient_speed: float = 1.
-    gradient_offset: float = 0.
+    gradient_speed: float = 1.0
+    gradient_offset: float = 0.0
     inside_color: Union[None, Color] = BLACK
 
     def render(self):
-        fractal = compute(self.camera, self.kind, limit=self.limit, bound=self.bound, julia=self.julia)
+        fractal = compute(
+            self.camera, self.kind, limit=self.limit, bound=self.bound, julia=self.julia
+        )
         fractal = preprocess(fractal, self.normalize_quantiles, self.steps_power)
-        fractal = colorize(fractal, self.gradient_points,
-                           speed=self.gradient_speed,
-                           offset=self.gradient_offset,
-                           inside_color=self.inside_color,
-                           color_count=self.color_count,
-                           loop=self.gradient_loop,
-                           )
+        fractal = colorize(
+            fractal,
+            self.gradient_points,
+            speed=self.gradient_speed,
+            offset=self.gradient_offset,
+            inside_color=self.inside_color,
+            color_count=self.color_count,
+            loop=self.gradient_loop,
+        )
 
         return fractal.swapaxes(0, 1)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     cam = SimpleCamera((1920, 1080))
-    f = Fractal(cam, gradient_loop=True, normalize_quantiles=True, inside_color=(255, 169, 0))
+    f = Fractal(
+        cam, gradient_loop=True, normalize_quantiles=True, inside_color=(255, 169, 0)
+    )
     i = f.render()
     from PIL import Image
-    i = Image.fromarray(i, mode='RGB')
+
+    i = Image.fromarray(i, mode="RGB")
     i.show()

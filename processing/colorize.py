@@ -26,7 +26,7 @@ def apply_gradient(surf: np.ndarray, gradient, speed=1.0, offset=0.0):
     maxi = np.nanmax(surf)
 
     normalised = ((surf - mini) / (maxi - mini) * speed + offset) % 1.0
-    normalised *= (len(gradient) - 1)
+    normalised *= len(gradient) - 1
     normalised[~np.isfinite(normalised)] = 0
 
     out = gradient[normalised.astype(np.int)]
@@ -34,7 +34,15 @@ def apply_gradient(surf: np.ndarray, gradient, speed=1.0, offset=0.0):
     return out
 
 
-def colorize(fractal, gradient_points, speed=1, offset=0, loop=False, inside_color=None, color_count=1000):
+def colorize(
+    fractal,
+    gradient_points,
+    speed=1,
+    offset=0,
+    loop=False,
+    inside_color=None,
+    color_count=1000,
+):
     loop = loop or (speed != 1) or (offset != 0)
 
     if color_count is not None:
@@ -50,18 +58,18 @@ def colorize(fractal, gradient_points, speed=1, offset=0, loop=False, inside_col
     return image
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from matplotlib import pyplot as plt
 
-    surf = np.load('out.frac.npy')
+    surf = np.load("out.frac.npy")
     grad = tuple(gradient((0, 0, 0), (255, 169, 0), steps=255))
 
     out = apply_gradient(surf, grad)
 
     from PIL import Image
 
-    im = Image.fromarray(out.swapaxes(0, 1), 'RGB')
-    im.show(command='feh')
+    im = Image.fromarray(out.swapaxes(0, 1), "RGB")
+    im.show(command="feh")
     quit()
 
     import seaborn as sns

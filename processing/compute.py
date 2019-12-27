@@ -8,7 +8,7 @@ import click
 
 from processing.camera import SimpleCamera
 
-__all__ = ['compute', 'Coloration', 'ESCAPE_FUNCTIONS']
+__all__ = ["compute", "Coloration", "ESCAPE_FUNCTIONS"]
 
 DEFAULT_BOUND = 200_000
 
@@ -99,22 +99,22 @@ def escape_smoothfire(z0, c, limit=50, bound=DEFAULT_BOUND, f=f):
 
 
 class Coloration(Enum):
-    TIME = 'escape time'
-    SMOOTH_TIME = 'smooth escape time'
-    ANGLE = 'angle'
-    AVG_TRIANGLE_INEQUALITY = 'average triangle inequality'
+    TIME = "escape time"
+    SMOOTH_TIME = "smooth escape time"
+    ANGLE = "angle"
+    AVG_TRIANGLE_INEQUALITY = "average triangle inequality"
 
 
 ESCAPE_FUNCTIONS = {
     Coloration.TIME: escape,
     Coloration.SMOOTH_TIME: escape_smooth,
     Coloration.ANGLE: escape_angle,
-    Coloration.AVG_TRIANGLE_INEQUALITY: escape_smoothfire
+    Coloration.AVG_TRIANGLE_INEQUALITY: escape_smoothfire,
 }
 
 
 @njit(parallel=True)
-def _compute(out, escape_func, bottomleft, pixstep, limit, bound=100_000., julia=None):
+def _compute(out, escape_func, bottomleft, pixstep, limit, bound=100_000.0, julia=None):
     """
     Compute the escape time of each points of the surf.
 
@@ -125,7 +125,7 @@ def _compute(out, escape_func, bottomleft, pixstep, limit, bound=100_000., julia
     w, h = out.shape
     for x in prange(w):
         for y in prange(h):
-            z0 = bottomleft + pixstep * complex(x, h - y -1)
+            z0 = bottomleft + pixstep * complex(x, h - y - 1)
 
             if julia is None:
                 out[x, y] = escape_func(z0, z0, limit, bound)
@@ -133,7 +133,14 @@ def _compute(out, escape_func, bottomleft, pixstep, limit, bound=100_000., julia
                 out[x, y] = escape_func(z0, julia, limit, bound)
 
 
-def compute(camera: SimpleCamera, kind: Coloration, out=None, limit=50, bound=DEFAULT_BOUND, julia=None):
+def compute(
+    camera: SimpleCamera,
+    kind: Coloration,
+    out=None,
+    limit=50,
+    bound=DEFAULT_BOUND,
+    julia=None,
+):
     """
     Compute the view of the Mandelbrot set defined by the camera.
 
@@ -154,8 +161,9 @@ def compute(camera: SimpleCamera, kind: Coloration, out=None, limit=50, bound=DE
         # function, so we create it here if needed
         out = np.empty(camera.size)
     else:
-        assert tuple(
-            camera.size) == out.shape, f"The camera and out array have different sizes. {camera.size} != {out.shape}"
+        assert (
+            tuple(camera.size) == out.shape
+        ), f"The camera and out array have different sizes. {camera.size} != {out.shape}"
 
     escape_func = ESCAPE_FUNCTIONS[kind]
     _compute(out, escape_func, camera.bottomleft, camera.step, limit, bound, julia)
@@ -164,14 +172,14 @@ def compute(camera: SimpleCamera, kind: Coloration, out=None, limit=50, bound=DE
 
 
 @click.command()
-@click.argument('centerx', default=-0.75)
-@click.argument('centery', default=0.0)
-@click.argument('zoom', default=2.0)
-@click.option('--width', '-w', default=1920)
-@click.option('--height', '-h', default=1080)
-@click.option('--out', '-o', default='out.frac')
-@click.option('--show', is_flag=True)
-@click.option('--steps', '-s', default=100)
+@click.argument("centerx", default=-0.75)
+@click.argument("centery", default=0.0)
+@click.argument("zoom", default=2.0)
+@click.option("--width", "-w", default=1920)
+@click.option("--height", "-h", default=1080)
+@click.option("--out", "-o", default="out.frac")
+@click.option("--show", is_flag=True)
+@click.option("--steps", "-s", default=100)
 def main(width, height, centerx, centery, zoom, out, show):
     size = (width, height)
     camera = SimpleCamera(size, centerx + 1j * centery, zoom)
@@ -185,9 +193,10 @@ def main(width, height, centerx, centery, zoom, out, show):
     if show:
         import seaborn as sns
         from matplotlib import pyplot as plt
+
         ax = sns.heatmap(surf.swapaxes(0, 1))
         plt.show()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

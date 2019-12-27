@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def normalize_quantiles(surf, nb, exclude_inside=True):
     """
     Discretize the array such that every number has approximately the same area.
@@ -12,10 +13,10 @@ def normalize_quantiles(surf, nb, exclude_inside=True):
     :return: ndarray with the same shape and discrete values.
     """
 
-    values =  np.sort(surf.flatten())
+    values = np.sort(surf.flatten())
     indices = (np.linspace(0, 1, nb, endpoint=False) * values.size).astype(int)
     steps = values[indices]
-    zero = steps.searchsorted(0, 'right') if exclude_inside else 0
+    zero = steps.searchsorted(0, "right") if exclude_inside else 0
 
     new = np.empty(surf.shape)
     for part, bound in enumerate(steps):

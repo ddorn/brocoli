@@ -6,7 +6,7 @@ WHITE = (255, 255, 255)
 
 
 def mix(a, b, f):
-    return [round(aa * (1-f) + bb * f ) for aa, bb in zip(a, b)]
+    return [round(aa * (1 - f) + bb * f) for aa, bb in zip(a, b)]
 
 
 def hsv_mix(a, b, f):
@@ -55,15 +55,16 @@ def gradient(*colors, steps=256, loop=False):
             a, b = b, colors[segment]
         seg_pos = f = pos * nb_segments - (segment - 1)
 
-        if abs(a[0] - b[0]) < 1/3:
+        if abs(a[0] - b[0]) < 1 / 3:
             c = hsv_to_RGB(*hsv_mix(a, b, f))
         else:
             c = mix(hsv_to_RGB(*a), hsv_to_RGB(*b), seg_pos)
         yield c
 
+
 def hex2rgb(color: str):
     color = color.strip()
-    color = color.strip('#')
+    color = color.strip("#")
     assert len(color) == 6
 
-    return tuple(map(lambda i: int(color[i: i+2], 16), range(0, 6, 2)))
+    return tuple(map(lambda i: int(color[i : i + 2], 16), range(0, 6, 2)))

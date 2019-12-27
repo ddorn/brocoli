@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 import os
 
 from PIL import Image
@@ -10,7 +11,12 @@ from kivy.uix.widget import Widget
 from kivymd.app import MDApp
 
 from processing import Coloration
-from processing.random_fractal import random_position, optimal_limit, random_kind, random_gradient
+from processing.random_fractal import (
+    random_position,
+    optimal_limit,
+    random_kind,
+    random_gradient,
+)
 from tabs import *
 
 
@@ -21,6 +27,7 @@ class LabeledSlider(BoxLayout):
     value = NumericProperty()
     text = StringProperty()
     step = NumericProperty()
+
 
 class LogLabeledSlider(BoxLayout):
     min = NumericProperty()
@@ -45,7 +52,7 @@ class Brocoli(Widget):
         self.camera_tab.on_view_size_change(self.size)
 
     def update_image_from_array(self, fractal):
-        image = Image.fromarray(fractal.swapaxes(0, 1), mode='RGB')
+        image = Image.fromarray(fractal.swapaxes(0, 1), mode="RGB")
         if image.size != self.int_size:
             image = image.resize(self.int_size)
         image.save("frac.png")
@@ -58,7 +65,7 @@ class Brocoli(Widget):
             return
 
         self.update_image_from_array(self.colored_fractal)
-        print('updated !')
+        print("updated !")
 
     def random_fractal(self, *args):
         with self.gradient_tab:
@@ -74,7 +81,7 @@ class Brocoli(Widget):
             self.gradient_tab.offset = 0
             self.gradient_tab.gradient = random_gradient()
             self.gradient_tab.black_inside = False
-        print('Randomly updated !')
+        print("Randomly updated !")
 
     def on_touch_down(self, touch):
         if super(Brocoli, self).on_touch_down(touch):
@@ -88,18 +95,18 @@ class Brocoli(Widget):
     def int_size(self):
         return int(self.size[0]), int(self.size[1])
 
+
 class MainWidget(Widget):
     pass
 
 
 class BrocoliApp(MDApp):
-
     def __init__(self, **kwargs):
 
-        for kv in os.listdir('./tabs'):
-            if kv.endswith('.kv'):
+        for kv in os.listdir("./tabs"):
+            if kv.endswith(".kv"):
                 print("Loaded", kv)
-                Builder.load_file(os.path.join('tabs', kv))
+                Builder.load_file(os.path.join("tabs", kv))
         self.title = "Brocoli"
         self.theme_cls.theme_style = "Dark"
         self.theme_cls.primary_palette = "Green"
@@ -110,5 +117,5 @@ class BrocoliApp(MDApp):
         return MainWidget()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     BrocoliApp().run()

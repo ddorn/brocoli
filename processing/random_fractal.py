@@ -84,33 +84,34 @@ def random_gradient():
     data = '{"model":"default"}'
 
     try:
-        result = requests.post('http://colormind.io/api/', data=data, timeout=2)
-        points = result.json()['result']
+        result = requests.post("http://colormind.io/api/", data=data, timeout=2)
+        points = result.json()["result"]
         return list(gradient(*points, steps=1000, loop=True))
     except Exception as e:
         print(e)
 
         loop = True
         gradients = [
-            '0F4152 59A07B F7E491 EDB825 EB3615',
-            'D3AD2B D02C22 223336 326C67 187C25',
-            '39624D 63A26E C6B070 E47735 A62413',
-            'D83537 DD8151 F1DC81 7CCB86 4C5C77',
-            '01ACD7 68C6C9 EFDC85 EB9821 9F290E',
-            '000000 ff0000 000000 ffffff',
-            '78ACDA 143986 0F1529 226197 8F82E2',
-            '1F1D21 108D90 F5B33E FA7252 DA4D3F',
-            '10182D 080908 D0490C DCAF14 F7EE51',
-            '236261 14A087 93CC9D FDC97E ED3533',
-            'FAFAFA F0CA32 F3431B 67221B 0B0C0D',
-            '0E0E0E 40160E C7341B E78F2A F6F5F2',
-            '244D5D 10A8D6 DCCDC1 C7794A CC4B3D',
-            '073D52 10A8D6 F2E8DA F2903A B94C23',
-            '05435F 099086 71D280 EFE84D F4B842',
+            "0F4152 59A07B F7E491 EDB825 EB3615",
+            "D3AD2B D02C22 223336 326C67 187C25",
+            "39624D 63A26E C6B070 E47735 A62413",
+            "D83537 DD8151 F1DC81 7CCB86 4C5C77",
+            "01ACD7 68C6C9 EFDC85 EB9821 9F290E",
+            "000000 ff0000 000000 ffffff",
+            "78ACDA 143986 0F1529 226197 8F82E2",
+            "1F1D21 108D90 F5B33E FA7252 DA4D3F",
+            "10182D 080908 D0490C DCAF14 F7EE51",
+            "236261 14A087 93CC9D FDC97E ED3533",
+            "FAFAFA F0CA32 F3431B 67221B 0B0C0D",
+            "0E0E0E 40160E C7341B E78F2A F6F5F2",
+            "244D5D 10A8D6 DCCDC1 C7794A CC4B3D",
+            "073D52 10A8D6 F2E8DA F2903A B94C23",
+            "05435F 099086 71D280 EFE84D F4B842",
         ]
         grad = choice(gradients).split()
         print(grad)
         return list(gradient(*grad, steps=1000, loop=True))
+
 
 def optimal_limit(camera):
     camera = SimpleCamera((50, 50), camera.center, camera.height)
@@ -121,7 +122,7 @@ def optimal_limit(camera):
     last = 0
     while n < 13:
         n += 1
-        new = compute(camera, Coloration.TIME, limit=2**n)
+        new = compute(camera, Coloration.TIME, limit=2 ** n)
 
         escaped = (new > 0).sum()
         if escaped - last < 30 and escaped > 0:
@@ -129,45 +130,44 @@ def optimal_limit(camera):
 
         last = escaped
 
-    return 2**n
+    return 2 ** n
 
 
 @contextmanager
-def timeit(text=''):
+def timeit(text=""):
     t = time()
     if text:
-        print(f'{text}...' + ' '*(21 - len(text)), end='')
+        print(f"{text}..." + " " * (21 - len(text)), end="")
     yield
-    print(f'{round(time() - t, 2)}s')
+    print(f"{round(time() - t, 2)}s")
 
 
 def random_fractal(size=(1920, 1080)):
 
-
-    with timeit('Finding view point'):
+    with timeit("Finding view point"):
         camera = random_position()
 
-    with timeit('Random gradient'):
+    with timeit("Random gradient"):
         gradient = random_gradient()
 
-    with timeit('Optimal limit'):
+    with timeit("Optimal limit"):
         limit = optimal_limit(camera)
-    print('Limit:', limit)
+    print("Limit:", limit)
 
     kind = random_kind()
     speed = 1 + (kind == Coloration.SMOOTH_TIME)
     camera.size = size
 
-    with timeit('Computing'):
+    with timeit("Computing"):
         frac = compute(camera, kind, limit=limit)
 
-    with timeit('Pre-processing'):
+    with timeit("Pre-processing"):
         if kind != Coloration.AVG_TRIANGLE_INEQUALITY:
             frac = normalize_quantiles(frac, 1000)
 
         signed_normalize_ip(frac, speed)
 
-    with timeit('Coloring'):
+    with timeit("Coloring"):
         if random() < 0.5:
             frac = apply_gradient(abs(frac), gradient)
         else:
@@ -177,18 +177,19 @@ def random_fractal(size=(1920, 1080)):
     return frac
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from PIL import Image
-    with timeit('Total'):
+
+    with timeit("Total"):
         print()
         frac = random_fractal()
 
-        image = Image.fromarray(frac.swapaxes(0, 1), mode='RGB')
+        image = Image.fromarray(frac.swapaxes(0, 1), mode="RGB")
 
-        name = 'random_fractal.png'
-        with timeit('Saving'):
+        name = "random_fractal.png"
+        with timeit("Saving"):
             image.save(name)
-        print(f'Saved as {name}')
-        print('Done.')
+        print(f"Saved as {name}")
+        print("Done.")
 
     image.show()
