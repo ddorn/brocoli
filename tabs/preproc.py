@@ -23,7 +23,8 @@ class PreprocTab(MyTab):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.bind(any=self.process, fractal=self.process)
+        self.set_components_for_change('speed offset steps_power normalize_quantiles fractal'.split())
+        self.bind(on_change=self.process)
         def f(*a): self.steps_power = 1
         Clock.schedule_once(f, 0)
 
