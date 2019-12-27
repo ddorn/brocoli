@@ -24,10 +24,10 @@ class Fractal:
     julia: Union[None, complex] = None
     # pre-processing
     normalize_quantiles: bool = False
-    steps_power = 1.0
+    steps_power: float = 1.0
     # Colors
     gradient_points: List[Color] = (BLACK, WHITE)
-    color_count = 1000
+    color_count: int = 1000
     gradient_loop: bool = False
     gradient_speed: float = 1.0
     gradient_offset: float = 0.0

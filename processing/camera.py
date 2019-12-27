@@ -7,7 +7,7 @@ class SimpleCamera:
 
         # self.set_components_for_change("center height size".split())
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return f"<Camera({self.size[0]}x{self.size[1]}, {float(self.height) :.2}, {self.center})>"
 
     @property
