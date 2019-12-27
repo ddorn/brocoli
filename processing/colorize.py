@@ -43,7 +43,11 @@ def colorize(
     inside_color=None,
     color_count=1000,
 ):
-    loop = loop or (speed != 1) or (offset != 0)
+    # we dont loop if there is already a loop
+    # but we do if speed or offset force us
+    loop = gradient_points[0] != gradient_points[-1] and (
+        loop or (speed != 1) or (offset != 0)
+    )
 
     if color_count is not None:
         grad = list(gradient(*gradient_points, steps=color_count, loop=loop))
