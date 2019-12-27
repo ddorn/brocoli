@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
+from contextlib import contextmanager
 from enum import Enum
 from math import log
+from time import time
 
 import numpy as np
 from numba import njit, prange
@@ -169,6 +171,15 @@ def compute(
     _compute(out, escape_func, camera.bottomleft, camera.step, limit, bound, julia)
 
     return out
+
+
+@contextmanager
+def timeit(text=""):
+    t = time()
+    if text:
+        print(f"{text}..." + " " * (21 - len(text)), end="", flush=True)
+    yield
+    print(f"{round(time() - t, 2)}s")
 
 
 @click.command()

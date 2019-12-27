@@ -10,7 +10,7 @@ import requests
 from fractal import Fractal
 from processing.camera import SimpleCamera
 from processing.colors import gradient
-from processing.compute import Coloration, compute
+from processing.compute import Coloration, compute, timeit
 
 
 def random_color():
@@ -131,15 +131,6 @@ def optimal_limit(camera):
         last = escaped
 
     return 2 ** n
-
-
-@contextmanager
-def timeit(text=""):
-    t = time()
-    if text:
-        print(f"{text}..." + " " * (21 - len(text)), end="")
-    yield
-    print(f"{round(time() - t, 2)}s")
 
 
 def random_fractal(size=(1920, 1080)):

@@ -1,5 +1,8 @@
 from dataclasses import dataclass
+from enum import Enum
+from functools import reduce
 from typing import List, Union, Tuple
+from PIL import Image
 
 from processing.camera import SimpleCamera
 from processing.colorize import colorize
@@ -30,7 +33,7 @@ class Fractal:
     gradient_offset: float = 0.0
     inside_color: Union[None, Color] = None
 
-    def render(self):
+    def render(self, as_pillow_image=False):
         fractal = compute(
             self.camera, self.kind, limit=self.limit, bound=self.bound, julia=self.julia
         )
@@ -45,16 +48,21 @@ class Fractal:
             loop=self.gradient_loop,
         )
 
-        return fractal.swapaxes(0, 1)
+        fractal = fractal.swapaxes(0, 1)
+
+        if as_pillow_image:
+            return Image.fromarray(fractal, mode="RGB")
+        else:
+            return fractal
 
 
 if __name__ == "__main__":
+
     cam = SimpleCamera((1920, 1080))
     f = Fractal(
         cam, gradient_loop=True, normalize_quantiles=True, inside_color=(255, 169, 0)
     )
     i = f.render()
-    from PIL import Image
 
     i = Image.fromarray(i, mode="RGB")
     i.show()
