@@ -61,7 +61,9 @@ def size_type(val: str):
 
 
 complex_type = click_type("complex")(complex)
-color_type = click_type("color", hint="Must be in hexadecimal format")(hex2rgb)
+color_type = click_type(
+    "color", hint="Must be in hexadecimal format or a common english name"
+)(hex2rgb)
 
 
 @click_type("coloration kind", hint="Coloration must be one of [S|A|T|I]")

@@ -1,5 +1,5 @@
 from colorsys import rgb_to_hsv, hsv_to_rgb
-
+import colour
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -55,7 +55,7 @@ def gradient(*colors, steps=256, loop=False):
             a, b = b, colors[segment]
         seg_pos = f = pos * nb_segments - (segment - 1)
 
-        if abs(a[0] - b[0]) < 1 / 3:
+        if abs(a[0] - b[0]) < 1 / 3 and abs(a[2] - b[2]) < 1.0 / 2:
             c = hsv_to_RGB(*hsv_mix(a, b, f))
         else:
             c = mix(hsv_to_RGB(*a), hsv_to_RGB(*b), seg_pos)
@@ -65,6 +65,9 @@ def gradient(*colors, steps=256, loop=False):
 def hex2rgb(color: str):
     color = color.strip()
     color = color.strip("#")
+
+    if color.lower() in colour.COLOR_NAME_TO_RGB:
+        return colour.COLOR_NAME_TO_RGB[color.lower()]
     assert len(color) == 6
 
     return tuple(map(lambda i: int(color[i : i + 2], 16), range(0, 6, 2)))
