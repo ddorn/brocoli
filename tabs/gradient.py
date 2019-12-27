@@ -1,7 +1,7 @@
 from kivy.clock import Clock
 from kivy.properties import ObjectProperty, BooleanProperty, ReferenceListProperty
 
-from processing.colorize import apply_gradient
+from processing.colorize import apply_gradient, colorize
 from processing.colors import gradient, BLACK
 from tabs.base import MyTab
 
@@ -56,6 +56,7 @@ class GradientTab(MyTab):
         # loop = kwargs.pop('loop', self.loop)
         gradient = kwargs.pop('gradient', self.gradient)
         black_inside = kwargs.pop('black_inside', self.black_inside)
+        inside_color = BLACK if black_inside else None
 
         if kwargs:
             print(f"Warning: GradientTab.process had unknown kwargs {tuple(kwargs.keys())}.")
@@ -64,10 +65,7 @@ class GradientTab(MyTab):
             print('Warning: GradientTab.process called without fractal.')
             return
 
-        if black_inside:
-            image = apply_gradient(fractal, gradient, inside=BLACK)
-        else:
-            image = apply_gradient(abs(fractal), gradient)
+        image = colorize(fractal, gradient, inside_color=inside_color, color_count=None)
 
         if cache:
             self.colored_fractal = image

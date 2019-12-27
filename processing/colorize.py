@@ -5,101 +5,49 @@ import numpy as np
 from processing.colors import gradient
 
 
-def apply_gradient(surf: np.ndarray, gradient, speed=1.0, offset=0.0, inside=None):
+def apply_gradient(surf: np.ndarray, gradient, speed=1.0, offset=0.0):
+    """
+    Apply a gradient to a surface with values in [0,1].
+
+    A value of 0 is the beginning o the gradient and 1 is this end.
+    This function is from [0,1]^(m,n) -> [0,255]^(m,n,3)
+
+    :param surf: array wih values between 0 and 1
+    :param gradient: list of colors
+    :param speed: speed of the gradient. A speed of 2 would make the gradient
+        loop twice. Once between 0 and 0.5 aand once between 0.5 and 1
+    :param offset: The gradient offset tells what value in surf corresponds
+        to gradient[0]
+    :return: An image of shape (m, n, 3) of int8.
+    """
     gradient = np.array(gradient, dtype=np.int8)
 
-    if inside is not None:
-        mini = np.nanmin(surf[surf >= 0])
-        maxi = np.nanmax(surf[surf >= 0])
-    else:
-        mini = np.nanmin(surf)
-        maxi = np.nanmax(surf)
+    mini = np.nanmin(surf)
+    maxi = np.nanmax(surf)
 
     normalised = ((surf - mini) / (maxi - mini) * speed + offset) % 1.0
     normalised *= (len(gradient) - 1)
     normalised[~np.isfinite(normalised)] = 0
 
-    if inside is not None:
-        normalised[surf < 0] = -1
-
     out = gradient[normalised.astype(np.int)]
-
-    if inside is not None:
-        out[surf < 0] = inside
 
     return out
 
 
-def normalize_quantiles(surf, nb, exclude_inside=True):
-    """
-    Discretize the array such that every number has approximately the same area.
+def colorize(fractal, gradient_points, speed=1, offset=0, loop=False, inside_color=None, color_count=1000):
+    loop = loop or (speed != 1) or (offset != 0)
 
-    Preserves the order (ie surf[x] <= surf[y] => f(surf)[x] < f(surf)[y])
+    if color_count is not None:
+        grad = list(gradient(*gradient_points, steps=color_count, loop=loop))
+    else:
+        grad = gradient_points
 
-    :param surf: ndarray to process
-    :param nb: nb of discrete values in the return
-    :param exclude_inside: keep the negative values negative
-    :return: ndarray with the same shape and discrete values.
-    """
+    image = apply_gradient(abs(fractal), grad, speed, offset)
 
-    values = np.sort(surf.flatten())
-    indices = (np.linspace(0, 1, nb, endpoint=False) * values.size).astype(int)
-    steps = values[indices]
-    zero = steps.searchsorted(0, 'right') if exclude_inside else 0
+    if inside_color is not None:
+        image[fractal < 0] = inside_color
 
-    new = np.empty(surf.shape)
-    for part, bound in enumerate(steps):
-        new[surf >= bound] = part - zero
-
-    return new.reshape(surf.shape)
-
-
-def signed_normalize_ip(fractal, speed=1.0, offset=0.0):
-    """
-    Normalize a fractal and keep the the sign of each value.
-
-    Negative numbers are mapped to [-1, 0] and positive to [0, 1]
-    The speed and offset rotate the normalized values.
-
-    :param speed: rotation stretch
-    :param offset: rotation
-    :return: a ndarray with valuesbetween -1 and 1
-    """
-
-    pos = fractal[fractal >= 0]
-    neg = fractal[fractal < 0]
-
-    if pos.size > 0:
-        mini = np.nanmin(pos)
-        maxi = np.nanmax(pos)
-        if mini != maxi:
-            pos[:] = (pos - mini) / (maxi - mini)
-            pos[:] = (pos * speed + offset) % 1.0
-        else:
-            pos[:] = 1
-
-    if neg.size > 0:
-        mini = np.nanmin(neg)
-        maxi = np.nanmax(neg)
-        if mini != maxi:
-            neg[:] = (neg - maxi) / (maxi - mini)
-            neg[:] = (neg * speed + offset) % 1.0 - 1
-        else:
-            neg[:] = -1
-
-        assert (neg <= 0).all()
-
-    fractal[fractal >= 0] = pos
-    fractal[fractal < 0] = neg
-
-
-def signed_power(fractal, power):
-    """
-    Raise every point to the given power, keeping the sign.
-
-    :return: abs(fractal) ** power * sign(fractal)
-    """
-    return abs(fractal) ** power * np.sign(fractal)
+    return image
 
 
 if __name__ == '__main__':

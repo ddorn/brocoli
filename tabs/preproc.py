@@ -1,7 +1,7 @@
 from kivy.clock import Clock
 from kivy.properties import NumericProperty, BooleanProperty, ReferenceListProperty, ObjectProperty
 
-from processing.colorize import normalize_quantiles, signed_normalize_ip, signed_power
+from processing.preprocess import normalize_quantiles, signed_normalize_ip, signed_power
 from tabs.base import MyTab
 
 

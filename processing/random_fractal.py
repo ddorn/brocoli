@@ -7,9 +7,10 @@ import numpy as np
 import requests
 
 from processing.camera import SimpleCamera
-from processing.colorize import signed_normalize_ip, apply_gradient, normalize_quantiles
+from processing.colorize import apply_gradient
 from processing.colors import gradient
 from processing.compute import Coloration, compute
+from processing.preprocess import normalize_quantiles, signed_normalize_ip
 
 
 def random_color():
