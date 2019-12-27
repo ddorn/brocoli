@@ -68,9 +68,10 @@ class Brocoli(Widget):
                     self.camera_tab.set_camera_pov(camera.center, camera.height)
                     self.camera_tab.steps = optimal_limit(camera)
                     self.camera_tab.kind = random_kind()
-                self.preproc_tab.speed = 2
-                self.preproc_tab.offset = 0
-                self.preproc_tab.normalize_quantiles = self.camera_tab.kind == Coloration.SMOOTH_TIME
+                    is_time = self.camera_tab.kind == Coloration.SMOOTH_TIME
+                self.preproc_tab.normalize_quantiles = is_time
+            self.gradient_tab.speed = 1 + is_time
+            self.gradient_tab.offset = 0
             self.gradient_tab.gradient = random_gradient()
             self.gradient_tab.black_inside = False
         print('Randomly updated !')

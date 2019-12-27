@@ -8,12 +8,8 @@ from tabs.base import MyTab
 class PreprocTab(MyTab):
     steps_power = NumericProperty(1)
     normalize_quantiles = BooleanProperty()
-    speed = NumericProperty(1)
-    offset = NumericProperty(0)
 
-    any = ReferenceListProperty(speed,
-                                offset,
-                                steps_power,
+    any = ReferenceListProperty(steps_power,
                                 normalize_quantiles)
 
     fractal = ObjectProperty(force_dispatch=True, allownone=True)
@@ -22,7 +18,7 @@ class PreprocTab(MyTab):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.set_components_for_change('speed offset steps_power normalize_quantiles fractal'.split())
+        self.set_components_for_change('any fractal'.split())
         self.bind(on_change=self.process)
         def f(*a): self.steps_power = 1
         Clock.schedule_once(f, 0)
@@ -36,8 +32,6 @@ class PreprocTab(MyTab):
         fractal = kwargs.pop('fractal', self.fractal)
         norm_quantiles = kwargs.pop('normalize_quantiles', self.normalize_quantiles)
         steps_power = kwargs.pop('steps_power', self.steps_power)
-        speed = kwargs.pop('speed', self.speed)
-        offset = kwargs.pop('offset', self.offset)
 
         if kwargs:
             print(f"Warning: GradientTab.process had unknown kwargs {tuple(kwargs.keys())}.")
@@ -48,10 +42,6 @@ class PreprocTab(MyTab):
 
         fractal = fractal.copy()
 
-        # we don't want a constant image
-        if speed == 0:
-            speed = 1
-
         if norm_quantiles:
             fractal = normalize_quantiles(fractal, 1000)
 
@@ -60,7 +50,7 @@ class PreprocTab(MyTab):
             fractal = signed_power(fractal, steps_power)
 
         # put fractal between -1 and 1
-        signed_normalize_ip(fractal, speed, offset)
+        signed_normalize_ip(fractal)
 
         if cache:
             self.preproc_fractal = fractal

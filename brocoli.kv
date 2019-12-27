@@ -57,7 +57,7 @@
     value: slider.value
     MDLabel:
         size_hint_x: 0.4
-        text: self.parent.text + " ({}) :".format(round(root.value, 2))
+        text: self.parent.text + " ({})".format(round(root.value, 2))
     MDSlider:
         id: slider
         size_hint_x: 0.6
@@ -70,7 +70,7 @@
     value: int(round(2**slider.value))
     MDLabel:
         size_hint_x: 0.4
-        text: self.parent.text + " ({}) :".format(root.value)
+        text: self.parent.text + " ({})".format(root.value)
     MDSlider:
         id: slider
         size_hint_x: 0.6
