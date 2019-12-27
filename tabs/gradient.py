@@ -21,12 +21,12 @@ class GradientTab(MyTab):
         super().__init__(**kwargs)
 
         loop=True
-        # grad = list(gradient('#0F4152', '#59A07B', '#F7E491', '#EDB825', '#EB3615', loop=True))
+        grad = list(gradient('#0F4152', '#59A07B', '#F7E491', '#EDB825', '#EB3615', loop=True))
         # grad = list(gradient(*"D3AD2B D02C22 223336 326C67 187C25".split(), loop=loop))
         # grad = [hsv_to_RGB(h / 1000, 1 , 1) for h in range(1000)]
         # grad = list(gradient(*"39624D 63A26E C6B070 E47735 A62413".split(), loop=loop))
         # grad = list(gradient(*"D83537 DD8151 F1DC81 7CCB86 4C5C77".split(), loop=loop))
-        grad = list(gradient(*"01ACD7 68C6C9 EFDC85 EB9821 9F290E".split(), loop=loop))
+        # grad = list(gradient(*"01ACD7 68C6C9 EFDC85 EB9821 9F290E".split(), loop=loop))
         # grad = list(gradient(*"000000 ff0000 000000 ffffff".split(), loop=loop))
         # grad = list(gradient(*"78ACDA 143986 0F1529 226197 8F82E2".split(), loop=loop))
         # grad = list(gradient(*"1F1D21 108D90 F5B33E FA7252 DA4D3F".split(), loop=loop))

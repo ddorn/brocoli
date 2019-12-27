@@ -82,10 +82,34 @@ def random_gradient():
 
     data = '{"model":"default"}'
 
-    result = requests.post('http://colormind.io/api/', data=data)
-    points = result.json()['result']
-    return list(gradient(*points, steps=1000, loop=True))
+    try:
+        result = requests.post('http://colormind.io/api/', data=data, timeout=2)
+        points = result.json()['result']
+        return list(gradient(*points, steps=1000, loop=True))
+    except Exception as e:
+        print(e)
 
+        loop = True
+        gradients = [
+            '0F4152 59A07B F7E491 EDB825 EB3615',
+            'D3AD2B D02C22 223336 326C67 187C25',
+            '39624D 63A26E C6B070 E47735 A62413',
+            'D83537 DD8151 F1DC81 7CCB86 4C5C77',
+            '01ACD7 68C6C9 EFDC85 EB9821 9F290E',
+            '000000 ff0000 000000 ffffff',
+            '78ACDA 143986 0F1529 226197 8F82E2',
+            '1F1D21 108D90 F5B33E FA7252 DA4D3F',
+            '10182D 080908 D0490C DCAF14 F7EE51',
+            '236261 14A087 93CC9D FDC97E ED3533',
+            'FAFAFA F0CA32 F3431B 67221B 0B0C0D',
+            '0E0E0E 40160E C7341B E78F2A F6F5F2',
+            '244D5D 10A8D6 DCCDC1 C7794A CC4B3D',
+            '073D52 10A8D6 F2E8DA F2903A B94C23',
+            '05435F 099086 71D280 EFE84D F4B842',
+        ]
+        grad = choice(gradients).split()
+        print(grad)
+        return list(gradient(*grad, steps=1000, loop=True))
 
 def optimal_limit(camera):
     camera = SimpleCamera((50, 50), camera.center, camera.height)
