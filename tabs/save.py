@@ -51,5 +51,7 @@ class SaveTab(MyTab):
         image = Image.fromarray(colored_fractal.swapaxes(0, 1), mode="RGB")
         name = datetime.now().strftime("%Y-%m-%d %Hh%Mm%S fractal 4k.png")
         print(f"Saving as out/{name}...")
-        image.save(os.path.join("out", name))
+        if not os.path.exists("out"):
+            os.mkdir("out")
+        image.save(os.path.join("out", name), optimize=True)
         print("Done !")
