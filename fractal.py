@@ -28,7 +28,7 @@ class Fractal:
     gradient_loop: bool = False
     gradient_speed: float = 1.0
     gradient_offset: float = 0.0
-    inside_color: Union[None, Color] = BLACK
+    inside_color: Union[None, Color] = None
 
     def render(self):
         fractal = compute(

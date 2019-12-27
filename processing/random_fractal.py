@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
+
 from contextlib import contextmanager
-from random import choice, randint, randrange, random
+from random import choice, randint, randrange
 from time import time
 
 import numpy as np
 import requests
 
+from fractal import Fractal
 from processing.camera import SimpleCamera
-from processing.colorize import apply_gradient
 from processing.colors import gradient
 from processing.compute import Coloration, compute
-from processing.preprocess import normalize_quantiles, signed_normalize_ip
 
 
 def random_color():
@@ -157,24 +157,22 @@ def random_fractal(size=(1920, 1080)):
     kind = random_kind()
     speed = 1 + (kind == Coloration.SMOOTH_TIME)
     camera.size = size
+    bound = 2 ** randint(1, 20)
+    not_average = kind in (Coloration.SMOOTH_TIME, Coloration.TIME)
 
-    with timeit("Computing"):
-        frac = compute(camera, kind, limit=limit)
+    fractal = Fractal(
+        camera,
+        kind=kind,
+        limit=limit,
+        bound=bound,
+        normalize_quantiles=not_average,
+        gradient_points=gradient,
+        gradient_speed=speed,
+        gradient_offset=0,
+        inside_color=None,
+    )
 
-    with timeit("Pre-processing"):
-        if kind != Coloration.AVG_TRIANGLE_INEQUALITY:
-            frac = normalize_quantiles(frac, 1000)
-
-        signed_normalize_ip(frac, speed)
-
-    with timeit("Coloring"):
-        if random() < 0.5:
-            frac = apply_gradient(abs(frac), gradient)
-        else:
-            inside = random_color()
-            frac = apply_gradient(frac, gradient, inside=inside)
-
-    return frac
+    return fractal
 
 
 if __name__ == "__main__":
@@ -182,9 +180,11 @@ if __name__ == "__main__":
 
     with timeit("Total"):
         print()
-        frac = random_fractal()
+        fractal = random_fractal()
+        with timeit("Rendering"):
+            surf = fractal.render()
 
-        image = Image.fromarray(frac.swapaxes(0, 1), mode="RGB")
+        image = Image.fromarray(surf, mode="RGB")
 
         name = "random_fractal.png"
         with timeit("Saving"):
