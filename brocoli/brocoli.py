@@ -106,9 +106,16 @@ def cli():
 @cli.command()
 def gui():
     """Start Brocoli's GUI."""
-    from .kivymain import BrocoliApp
 
-    BrocoliApp().run()
+    try:
+        from .kivymain import BrocoliApp
+    except ImportError:
+        click.secho("The GUI need kivy and kivymd to run.", fg="red")
+        click.secho("Please install them via pip.")
+        click.secho("   pip install -U --user kivy kivymd")
+        quit(1)
+    else:
+        BrocoliApp().run()
 
 
 @cli.command()

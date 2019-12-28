@@ -9,10 +9,6 @@ except FileNotFoundError:
     long_description = "{random, gui, cli} fractal generator"
 
 
-with open("requirements.txt") as f:
-    deps = f.read().splitlines()
-
-
 setup(
     name="brocoli",
     version="0.0.1",
@@ -23,7 +19,8 @@ setup(
     author_email="diego.dorn@free.fr",
     description="{random, gui, cli} fractal generator",
     long_description=long_description,
-    install_requires=deps,
+    install_requires="tweepy numba numpy click pillow colour".split(),
+    extras_require={"gui": ["kivy", "kivymd"]},
     entry_points={"console_scripts": ["brocoli = brocoli.brocoli:cli"]},
     include_package_data=True,
     keywords="fractal",
