@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+from io import BytesIO
 
 import tweepy
 
@@ -27,9 +28,9 @@ def tweet_random_fractal(api):
     text = tweet_text(fractal)
     image = fractal.render(True)
 
-    path = "random_fractal_tw.jpg"
-    image.save(path)
-    tweet = api.update_with_media(path, text)
+    bytes = BytesIO()
+    image.save(bytes, "jpeg")
+    tweet = api.update_with_media("random_fractal.jpg", text, file=bytes)
 
 
 if __name__ == "__main__":
