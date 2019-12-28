@@ -7,11 +7,11 @@ from kivy.properties import (
     ReferenceListProperty,
 )
 
-from processing.camera import SimpleCamera
-from processing.compute import compute, Coloration
-from tabs.dispatcher_extension import EventDispatcherExtension
-from processing.random_fractal import random_position
-from tabs.base import MyTab
+from .dispatcher_extension import EventDispatcherExtension
+from .base import MyTab
+from ..processing.camera import SimpleCamera
+from ..processing.compute import compute, Coloration
+from ..processing.random_fractal import random_position
 
 
 class EventDispatcherCamera(SimpleCamera, EventDispatcherExtension):

@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 
 import os
-from time import sleep
 
 import tweepy
 
-from processing.random_fractal import random_fractal
+from .processing.random_fractal import random_fractal
 
 
 def tweet_text(fractal):

@@ -6,8 +6,12 @@ from kivy.properties import (
     ObjectProperty,
 )
 
-from processing.preprocess import normalize_quantiles, signed_normalize_ip, signed_power
-from tabs.base import MyTab
+from ..processing.preprocess import (
+    normalize_quantiles,
+    signed_normalize_ip,
+    signed_power,
+)
+from .base import MyTab
 
 
 class PreprocTab(MyTab):

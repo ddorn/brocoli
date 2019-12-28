@@ -2,10 +2,10 @@
 
 import click
 
-from fractal import Fractal
-from processing import SimpleCamera, Coloration
-from processing.colors import hex2rgb
-from processing.compute import timeit
+from .fractal import Fractal
+from .processing import SimpleCamera, Coloration
+from .processing.colors import hex2rgb
+from .processing.compute import timeit
 
 
 def save(pil_image, click_file):
@@ -105,7 +105,7 @@ def cli():
 
 @cli.command()
 def gui():
-    from kivymain import BrocoliApp
+    from .kivymain import BrocoliApp
 
     BrocoliApp().run()
 
@@ -117,7 +117,7 @@ def gui():
 def random(size, show, output_file):
     """Generate a random fractal of a given SIZE."""
 
-    from processing.random_fractal import random_fractal
+    from .processing.random_fractal import random_fractal
     from PIL import Image
 
     fractal = random_fractal(size)
@@ -208,7 +208,7 @@ def gen(
 @click.option("--access-secret", envvar="TWITTER_ACCESS_SECRET")
 def bot(consumer_key, consumer_secret, access_key, access_secret):
     import tweepy
-    from TheFractalBot import tweet_random_fractal
+    from .TheFractalBot import tweet_random_fractal
 
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_key, access_secret)

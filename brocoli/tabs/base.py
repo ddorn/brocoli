@@ -2,12 +2,12 @@ from kivy.properties import ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivymd.uix.tab import MDTabsBase
 
-from tabs.dispatcher_extension import EventDispatcherExtension
+from .dispatcher_extension import EventDispatcherExtension
 
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from kivymain import Brocoli
+    from ..kivymain import Brocoli
 
 
 class MyTab(BoxLayout, MDTabsBase, EventDispatcherExtension):

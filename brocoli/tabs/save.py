@@ -6,7 +6,7 @@ from kivy.clock import Clock
 from kivy.properties import ObjectProperty, ListProperty
 from kivymd.uix.chip import MDChip
 
-from tabs.base import MyTab
+from .base import MyTab
 
 
 class ResoChip(MDChip):
@@ -53,5 +53,6 @@ class SaveTab(MyTab):
         print(f"Saving as out/{name}...")
         if not os.path.exists("out"):
             os.mkdir("out")
-        image.save(os.path.join("out", name), optimize=True)
+        filename = os.path.abspath(os.path.join("out", name))
+        image.save(filename, optimize=True)
         print("Done !")

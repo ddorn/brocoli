@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
 
-from contextlib import contextmanager
 from random import choice, randint, randrange
-from time import time
 
 import numpy as np
 import requests
 
-from fractal import Fractal
-from processing.camera import SimpleCamera
-from processing.colors import gradient
-from processing.compute import Coloration, compute, timeit
+from .camera import SimpleCamera
+from .colors import gradient
+from .compute import Coloration, compute, timeit
+from ..fractal import Fractal
 
 
 def random_color():

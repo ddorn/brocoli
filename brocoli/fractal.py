@@ -1,13 +1,11 @@
 from dataclasses import dataclass
-from enum import Enum
-from functools import reduce
 from typing import List, Union, Tuple
 from PIL import Image
 
-from processing.camera import SimpleCamera
-from processing.colorize import colorize
-from processing.compute import Coloration, compute
-from processing.preprocess import preprocess
+from .processing.camera import SimpleCamera
+from .processing.colorize import colorize
+from .processing.compute import Coloration, compute
+from .processing.preprocess import preprocess
 
 Color = Tuple[int, int, int]
 BLACK = (0, 0, 0)

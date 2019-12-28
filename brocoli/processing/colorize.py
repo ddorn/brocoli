@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from processing.colors import gradient
+from .colors import gradient
 
 
 def apply_gradient(surf: np.ndarray, gradient, speed=1.0, offset=0.0):

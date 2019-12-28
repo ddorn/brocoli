@@ -10,14 +10,14 @@ from kivy.uix.image import Image as KivyImage
 from kivy.uix.widget import Widget
 from kivymd.app import MDApp
 
-from processing import Coloration
-from processing.random_fractal import (
+from .processing import Coloration
+from .processing.random_fractal import (
     random_position,
     optimal_limit,
     random_kind,
     random_gradient,
 )
-from tabs import *
+from .tabs import *
 
 
 class LabeledSlider(BoxLayout):
@@ -103,10 +103,11 @@ class MainWidget(Widget):
 class BrocoliApp(MDApp):
     def __init__(self, **kwargs):
 
-        for kv in os.listdir("./tabs"):
+        tabs_dir = os.path.join(os.path.dirname(__file__), "tabs")
+        for kv in os.listdir(tabs_dir):
             if kv.endswith(".kv"):
                 print("Loaded", kv)
-                Builder.load_file(os.path.join("tabs", kv))
+                Builder.load_file(os.path.join(tabs_dir, kv))
         self.title = "Brocoli"
         self.theme_cls.theme_style = "Dark"
         self.theme_cls.primary_palette = "Green"

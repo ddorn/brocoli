@@ -6,9 +6,9 @@ from kivy.properties import (
     NumericProperty,
 )
 
-from processing.colorize import colorize
-from processing.colors import gradient, BLACK
-from tabs.base import MyTab
+from ..processing.colorize import colorize
+from ..processing.colors import gradient, BLACK
+from .base import MyTab
 
 
 class GradientTab(MyTab):

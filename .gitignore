@@ -1,6 +1,6 @@
 *.npy
 .idea
-frac.png
+**/frac.png
 
 # Created by https://www.gitignore.io/api/vim,pycharm,python
 # Edit at https://www.gitignore.io/?templates=vim,pycharm,python
