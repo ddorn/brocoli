@@ -208,7 +208,8 @@ def gen(
 @click.argument("consumer-secret", envvar="TWITTER_CONSUMER_SECRET")
 @click.argument("access-key", envvar="TWITTER_ACCESS_KEY")
 @click.argument("access-secret", envvar="TWITTER_ACCESS_SECRET")
-def bot(consumer_key, consumer_secret, access_key, access_secret):
+@click.option("--comment")
+def bot(consumer_key, consumer_secret, access_key, access_secret, comment):
     """
     Tweet a random fractal.
 
@@ -236,7 +237,7 @@ def bot(consumer_key, consumer_secret, access_key, access_secret):
         )
         quit(1)
 
-    tweet_random_fractal(api)
+    tweet_random_fractal(api, comment)
 
 
 if __name__ == "__main__":

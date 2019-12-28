@@ -22,15 +22,23 @@ Kind: {fractal.kind.value}
     return text
 
 
-def tweet_random_fractal(api):
+def tweet_random_fractal(api, comment):
 
     fractal = random_fractal()
-    text = tweet_text(fractal)
     image = fractal.render(True)
+
+    text = tweet_text(fractal)
+    if comment and len(text) + len(comment) < 279:
+        text += "\n" + comment
+        comment = None
 
     bytes = BytesIO()
     image.save(bytes, "jpeg")
     tweet = api.update_with_media("random_fractal.jpg", text, file=bytes)
+
+    if comment:
+        # it doesn't fit beneath the fractal description
+        api.update_status(comment, in_reply_to_status_id=tweet.id)
 
 
 if __name__ == "__main__":
