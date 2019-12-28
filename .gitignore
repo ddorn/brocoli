@@ -1,6 +1,8 @@
 *.npy
 .idea
+random_fractal_tw.jpg
 **/frac.png
+**/frac.jpg
 
 # Created by https://www.gitignore.io/api/vim,pycharm,python
 # Edit at https://www.gitignore.io/?templates=vim,pycharm,python

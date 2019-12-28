@@ -100,11 +100,12 @@ output_file_option = click.option(
 
 @click.group()
 def cli():
-    pass
+    """A fractal generation tool by @ddorn."""
 
 
 @cli.command()
 def gui():
+    """Start Brocoli's GUI."""
     from .kivymain import BrocoliApp
 
     BrocoliApp().run()
@@ -175,6 +176,7 @@ def gen(
     dry,
     output_file,
 ):
+    """Generate a fractal image with a lot of parameters."""
 
     camera = SimpleCamera(size, center, 3 / zoom)
     fractal = Fractal(
@@ -207,6 +209,7 @@ def gen(
 @click.option("--access-key", envvar="TWITTER_ACCESS_KEY")
 @click.option("--access-secret", envvar="TWITTER_ACCESS_SECRET")
 def bot(consumer_key, consumer_secret, access_key, access_secret):
+    """Tweet a random fractal."""
     import tweepy
     from .TheFractalBot import tweet_random_fractal
 

@@ -12,8 +12,8 @@ def tweet_text(fractal):
     real = fractal.camera.center.real
     imag = fractal.camera.center.imag
     heigth = fractal.camera.height
-    text = f"""
-Mandelbrot set at {real}{imag :+}i
+    text = f"""#DailyFractal #Fractal
+#Mandelbrot set at {real}{imag :+}i
 Zoom: {round(1/heigth)}
 Steps: {fractal.limit}
 Kind: {fractal.kind.value}
