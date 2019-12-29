@@ -16,7 +16,7 @@ def random_color():
 
 
 def random_kind():
-    return choice([Coloration.SMOOTH_TIME, Coloration.AVG_TRIANGLE_INEQUALITY])
+    # return choice([Coloration.SMOOTH_TIME, Coloration.AVG_TRIANGLE_INEQUALITY])
     return choice([e for e in Coloration if e != Coloration.ANGLE])
 
 
@@ -144,10 +144,10 @@ def random_fractal(size=(1920, 1080)):
     print("Limit:", limit)
 
     kind = random_kind()
-    speed = 1 + (kind == Coloration.SMOOTH_TIME)
+    not_average = kind in (Coloration.SMOOTH_TIME, Coloration.TIME)
+    speed = 1 + not_average
     camera.size = size
     bound = 2 ** randint(1, 20)
-    not_average = kind in (Coloration.SMOOTH_TIME, Coloration.TIME)
 
     fractal = Fractal(
         camera,

@@ -66,13 +66,14 @@ color_type = click_type(
 )(hex2rgb)
 
 
-@click_type("coloration kind", hint="Coloration must be one of [S|A|T|I]")
+@click_type("coloration kind", hint="Coloration must be one of [C|A|T|S|I]")
 def enum_type(val):
     d = {
         "a": Coloration.ANGLE,
         "t": Coloration.TIME,
         "s": Coloration.SMOOTH_TIME,
         "i": Coloration.AVG_TRIANGLE_INEQUALITY,
+        "c": Coloration.AVG_CURVATURE,
     }
 
     return d[val.lower()]

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from cmath import phase
 from contextlib import contextmanager
 from enum import Enum
 from math import log
@@ -100,11 +101,41 @@ def escape_smoothfire(z0, c, limit=50, bound=DEFAULT_BOUND, f=f):
     return -(d * s1 + (1 - d) * s0)
 
 
+@njit
+def escape_curvature(z0, c, limit=50, bound=DEFAULT_BOUND, f=f):
+    z1 = 0
+    z = z0
+
+    s = s1 = 0
+    sign = 1
+    i = 0
+    for i in range(limit):
+        z, z1, z2 = f(z, c), z, z1
+
+        if i >= 2 and (z1 != z2):
+            angle = (z - z1) / (z1 - z2)
+            s, s1 = s + abs(phase(angle)), s
+
+        if abs(z) > bound:
+            break
+    else:
+        sign = -1
+
+    # noinspection PyUnboundLocalVariable
+    S = s / (i - 1) if i > 1 else 0
+    S1 = s1 / (i - 2) if i > 2 else 0
+    d = 1 + 1 / log(2) * log(log(bound) / abs(log(abs(z)))) if abs(z) != 1 else 0
+    if sign < 0:
+        return -1
+    return (S * d + S1 * (1 - d)) * sign
+
+
 class Coloration(Enum):
     TIME = "escape time"
     SMOOTH_TIME = "smooth escape time"
     ANGLE = "angle"
     AVG_TRIANGLE_INEQUALITY = "average triangle inequality"
+    AVG_CURVATURE = "average curvature"
 
 
 ESCAPE_FUNCTIONS = {
@@ -112,6 +143,7 @@ ESCAPE_FUNCTIONS = {
     Coloration.SMOOTH_TIME: escape_smooth,
     Coloration.ANGLE: escape_angle,
     Coloration.AVG_TRIANGLE_INEQUALITY: escape_smoothfire,
+    Coloration.AVG_CURVATURE: escape_curvature,
 }
 
 
@@ -126,7 +158,7 @@ def _compute(out, escape_func, bottomleft, pixstep, limit, bound=100_000.0, juli
 
     w, h = out.shape
     for x in prange(w):
-        for y in prange(h):
+        for y in range(h):
             z0 = bottomleft + pixstep * complex(x, h - y - 1)
 
             if julia is None:
@@ -191,15 +223,15 @@ def timeit(text=""):
 @click.option("--out", "-o", default="out.frac")
 @click.option("--show", is_flag=True)
 @click.option("--steps", "-s", default=100)
-def main(width, height, centerx, centery, zoom, out, show):
+def main(width, height, centerx, centery, steps, zoom, out, show):
     size = (width, height)
     camera = SimpleCamera(size, centerx + 1j * centery, zoom)
 
     print("Computing fractal")
-    surf = compute(camera, Coloration.AVG_TRIANGLE_INEQUALITY, limit=300)
+    surf = compute(camera, Coloration.AVG_CURVATURE, limit=300)
 
-    print(f"Saving to {out}.npy")
-    np.save(out, surf)
+    # print(f"Saving to {out}.npy")
+    # np.save(out, surf)
 
     if show:
         import seaborn as sns
