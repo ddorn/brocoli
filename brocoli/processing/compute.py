@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from cmath import phase
+from collections import deque
 from contextlib import contextmanager
 from enum import Enum
 from math import log
@@ -14,6 +15,24 @@ from .camera import SimpleCamera
 __all__ = ["compute", "Coloration", "ESCAPE_FUNCTIONS"]
 
 DEFAULT_BOUND = 200_000
+
+
+@njit
+def lerp(a, b, t):
+    """
+    Linear interpolation between `a` and `b`.
+
+    Return `a` when `t` is 0 and `b` when `t` is one.
+    """
+
+    return a * (1.0 - t) + b * t
+
+
+@njit
+def smooth_coef(z, bound):
+    z = abs(z)
+    d = 1 + 1 / log(2) * log(log(bound) / abs(log(z))) if z != 1 else 0
+    return d
 
 
 @njit
@@ -71,63 +90,113 @@ def escape_smoothfire(z0, c, limit=50, bound=DEFAULT_BOUND, f=f):
     absc = abs(c)
     z = z0
     absz = abs(z)
-    t = old_t = i = 0
+    s = s1 = i = 0
+    sign = 1
     for i in range(1, limit):
         z = f(z, c)
 
-        old_t = t
+        s1 = s
         absz = abs(z)
         zc = abs(z - c)
         m = abs(zc - absc)
         M = zc + absc
 
         if i > 1 and M != m:
-            t += (absz - m) / (M - m)
+            s += (absz - m) / (M - m)
 
         if absz > bound:
-            if i < 3:
-                return 0
-
-            d = 1 + ln12 * log(lnbound / abs(log(absz)))
-            # print(d)
-            s1 = t / (i - 1)
-            s0 = old_t / (i - 2)
-            return d * s1 + (1 - d) * s0
-            # return i + d
-
-    d = 1 + ln12 * log(lnbound / abs(log(absz)))
-    s1 = t / (i - 1)
-    s0 = old_t / (i - 2)
-    return -(d * s1 + (1 - d) * s0)
-
-
-@njit
-def escape_curvature(z0, c, limit=50, bound=DEFAULT_BOUND, f=f):
-    z1 = 0
-    z = z0
-
-    s = s1 = 0
-    sign = 1
-    i = 0
-    for i in range(limit):
-        z, z1, z2 = f(z, c), z, z1
-
-        if i >= 2 and (z1 != z2):
-            angle = (z - z1) / (z1 - z2)
-            s, s1 = s + abs(phase(angle)), s
-
-        if abs(z) > bound:
             break
     else:
         sign = -1
 
-    # noinspection PyUnboundLocalVariable
+    d = 1 + ln12 * log(lnbound / abs(log(absz))) if absz != 1 else 0
     S = s / (i - 1) if i > 1 else 0
     S1 = s1 / (i - 2) if i > 2 else 0
-    d = 1 + 1 / log(2) * log(log(bound) / abs(log(abs(z)))) if abs(z) != 1 else 0
-    if sign < 0:
-        return -1
-    return (S * d + S1 * (1 - d)) * sign
+    return lerp(S1, S, d) * sign
+
+
+# @njit
+# def escape_curvature(z0, c, limit=50, bound=DEFAULT_BOUND, f=f):
+#     z1 = 0
+#     z = z0
+#
+#     s = s1 = 0
+#     sign = 1
+#     i = 0
+#     for i in range(limit):
+#         z, z1, z2 = f(z, c), z, z1
+#
+#         if i >= 2 and (z1 != z2):
+#             angle = (z - z1) / (z1 - z2)
+#             s, s1 = s + abs(phase(angle)), s
+#
+#         if abs(z) > bound:
+#             break
+#     else:
+#         sign = -1
+#
+#     # noinspection PyUnboundLocalVariable
+#     S = s / (i - 1) if i > 1 else 0
+#     S1 = s1 / (i - 2) if i > 2 else 0
+#     d = 1 + 1 / log(2) * log(log(bound) / abs(log(abs(z)))) if abs(z) != 1 else 0
+#     if sign < 0:
+#         return -1
+#     return lerp(S1, S, d) * sign
+
+
+@njit
+def my_deque_push(deque, head, value):
+    deque[head] = value
+    head = (head + 1) % len(deque)
+    return head
+
+
+def addend(order):
+    def decorator(t):
+        t = njit(t)
+
+        @njit
+        def func(z0, c, limit=50, bound=DEFAULT_BOUND, f=f):
+            # last `order` iterates of the function
+            # Ideally we would like to use a deque but numba does
+            # not support them, so we will use a list and a end/start
+            # pointer. Which works fine, since the deque has constant size
+            # after order iterations
+            zs = [0j] * order
+            head = 0  # this is always a valid index one after the last pushed value
+            head = my_deque_push(zs, head, z0)
+            # partial sums
+            s = s1 = i = 0
+
+            sign = 1
+            for i in range(limit):
+                head = my_deque_push(zs, head, f(zs[head - 1], c))
+
+                if i >= order - 1:
+                    s1, s = s, s + t(zs, head)
+
+                if abs(zs[head - 1]) > bound:
+                    break
+            else:
+                # we are inside, so negative values
+                sign = -1
+
+            S = s / (i - order + 2) if i > order - 2 else 0
+            S1 = s1 / (i - order + 1) if i > order - 1 else 0
+            d = smooth_coef(zs[head - 1], bound)
+            return lerp(S1, S, d) * sign
+
+        return func
+
+    return decorator
+
+
+@addend(3)
+def escape_curvature(zs, head):
+    if zs[head - 2] == zs[head]:
+        return 0
+    angle = (zs[head - 1] - zs[head - 2]) / (zs[head - 2] - zs[head])
+    return abs(phase(angle))
 
 
 class Coloration(Enum):
