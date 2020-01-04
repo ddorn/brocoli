@@ -3,7 +3,7 @@ from cmath import phase
 from collections import deque
 from contextlib import contextmanager
 from enum import Enum
-from math import log
+from math import log, sin
 from time import time
 
 import numpy as np
@@ -199,12 +199,19 @@ def escape_curvature(zs, head):
     return abs(phase(angle))
 
 
+@addend(1)
+def escape_stripe(zs, head):
+    s = 8
+    return 1 / 2 * sin(s * phase(zs[0])) + 1 / 2
+
+
 class Coloration(Enum):
     TIME = "escape time"
     SMOOTH_TIME = "smooth escape time"
     ANGLE = "angle"
     AVG_TRIANGLE_INEQUALITY = "average triangle inequality"
     AVG_CURVATURE = "average curvature"
+    AVG_STRIDE = "stride coloring"
 
 
 ESCAPE_FUNCTIONS = {
@@ -213,6 +220,7 @@ ESCAPE_FUNCTIONS = {
     Coloration.ANGLE: escape_angle,
     Coloration.AVG_TRIANGLE_INEQUALITY: escape_smoothfire,
     Coloration.AVG_CURVATURE: escape_curvature,
+    Coloration.AVG_STRIDE: escape_stripe,
 }
 
 
