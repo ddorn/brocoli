@@ -1,4 +1,4 @@
-#!/usr/bin/env python37
+#!/usr/bin/env python3.7
 
 from brocoli.brocoli import cli
 
