@@ -7,7 +7,7 @@ Mandelbrot set explorer and generator written in [python](python.org) and [kivy]
 ### Features
 
 Brocoli has many components:
- - a graphical interface to design and compute 
+ - a graphical interface to design and compute
  the Mandelbrot or Julia set
  - a command line interface to set all the implemented parameters
  - it can generate random views of the Mandelbrot set
@@ -15,14 +15,16 @@ Brocoli has many components:
 
 ### Installation and usage
 
-You will need python 3.6+ to install and run Brocoli, 
-but you can install it with or without the GUI. 
+You will need python 3.7 to install and run Brocoli,
+but you can install it with or without the GUI. Brocoli
+is not tested against python 3.6 and python 3.8+, and will
+not work with other versions of pyhton.
 
 ###### Download
 First clone the repository via ssh
 
     git clone git@gitlab.com:ddorn/brocoli.git
-    
+
 Or via https :
 
     git clone https://gitlab.com/ddorn/brocoli.git
@@ -36,19 +38,19 @@ But to run the graphical interface written with kivy
 you need to install it this way:
 
     pip install -U "./brocoli[gui]"
-    
+
 *Note: to install brocoli from inside the folder, run*
-*`pip install -U .` or `pip install -U ".[gui]"`*. 
+*`pip install -U .` or `pip install -U ".[gui]"`*.
 
 ###### Run
 When you install brocoli with pip it installs a `brocoli`
 script in that you can just run anywhere. I it a well behaved
-unix tool so it accepts `-` for `stdin` or `stdout` and you 
+unix tool so it accepts `-` for `stdin` or `stdout` and you
 can see all the options with
 
     brocoli --help
     brocoli gen --help
-    
+
 Try to run `brocoli random` !
 
 To start the graphical insterface, just use
