@@ -19,7 +19,7 @@ setup(
     author_email="diego.dorn@free.fr",
     description="{random, gui, cli} fractal generator",
     long_description=long_description,
-    install_requires="tweepy numba numpy click pillow colour".split(),
+    install_requires="tweepy numba numpy click pillow colour pyyaml".split(),
     extras_require={"gui": ["kivy", "kivymd"]},
     entry_points={"console_scripts": ["brocoli = brocoli.brocoli:cli"]},
     include_package_data=True,

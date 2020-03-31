@@ -7,6 +7,7 @@ from math import log, sin
 from time import time
 
 import numpy as np
+import yaml
 from numba import njit, prange
 import click
 
@@ -201,7 +202,7 @@ def escape_curvature(zs, head):
 
 @addend(1)
 def escape_stripe(zs, head):
-    s = 8
+    s = 4
     return 1 / 2 * sin(s * phase(zs[0])) + 1 / 2
 
 

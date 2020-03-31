@@ -1,9 +1,12 @@
 from dataclasses import dataclass
 from typing import List, Union, Tuple
+
+import yaml
 from PIL import Image
 
 from .processing.camera import SimpleCamera
 from .processing.colorize import colorize
+from .processing.colors import to_hex
 from .processing.compute import Coloration, compute
 from .processing.preprocess import preprocess
 
@@ -13,7 +16,7 @@ WHITE = (255, 255, 255)
 
 
 @dataclass
-class Fractal:
+class Fractal(yaml.YAMLObject):
     # View
     camera: SimpleCamera
     kind: Coloration = Coloration.SMOOTH_TIME
@@ -30,6 +33,9 @@ class Fractal:
     gradient_speed: float = 1.0
     gradient_offset: float = 0.0
     inside_color: Union[None, Color] = None
+
+    # For Yaml loading
+    yaml_tag = "Fractal"
 
     def render(self, as_pillow_image=False):
         fractal = compute(
@@ -52,6 +58,25 @@ class Fractal:
             return Image.fromarray(fractal, mode="RGB")
         else:
             return fractal
+
+    def as_dict(self):
+        return dict(
+            center=self.camera.center,
+            height=self.camera.height,
+            size=self.camera.size,
+            kind=self.kind,
+            limit=self.limit,
+            bound=self.bound,
+            julia=self.julia,
+            normalize_quantiles=self.normalize_quantiles,
+            steps_power=self.steps_power,
+            gradient_points=[to_hex(c) for c in self.gradient_points],
+            color_count=self.color_count,
+            gradient_loop=self.gradient_loop,  # can set with gradient_points
+            gradient_speed=self.gradient_speed,
+            gradient_offset=self.gradient_offset,
+            inside_color=self.inside_color,
+        )
 
 
 if __name__ == "__main__":

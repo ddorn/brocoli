@@ -31,6 +31,13 @@ def RGB_to_hsv(r, g, b):
     return rgb_to_hsv(r / 255, g / 255, b / 255)
 
 
+def to_hex(col):
+    if isinstance(col, str):
+        return "#" + col.strip("#")
+
+    return "#" + "".join(hex(x)[2:] for x in col)
+
+
 def gradient(*colors, steps=256, loop=False):
     """
     Yield the values of a colorisation as RGB tuple.

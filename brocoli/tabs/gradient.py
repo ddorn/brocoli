@@ -84,7 +84,7 @@ class GradientTab(MyTab):
             speed=speed,
             offset=offset,
             inside_color=inside_color,
-            color_count=None,
+            color_count=1000,  # TODO: slider for color count
         )
 
         if cache:

@@ -1,4 +1,9 @@
-class SimpleCamera:
+import yaml
+
+
+class SimpleCamera(yaml.YAMLObject):
+    yaml_tag = "SimpleCamera"
+
     def __init__(self, size, center=0j, height=2, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.center = center

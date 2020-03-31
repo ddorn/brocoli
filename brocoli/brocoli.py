@@ -1,11 +1,20 @@
 #!/usr/bin/env python3
 
 import click
+import yaml
 
 from .fractal import Fractal
 from .processing import SimpleCamera, Coloration
 from .processing.colors import hex2rgb
 from .processing.compute import timeit
+
+
+yaml.add_representer(
+    Coloration, lambda dumper, data: dumper.represent_scalar("!kind", data.value)
+)
+yaml.add_constructor(
+    "!kind", lambda loader, node: Coloration(loader.construct_scalar(node))
+)
 
 
 def save(pil_image, click_file):
@@ -122,22 +131,29 @@ def gui():
 @cli.command()
 @click.argument("size", type=size_type, default="1920x1080")
 @click.option("--show", "-s", is_flag=True)
+@click.option("--yaml", "-y", "yaml_file", type=click.File("w",))
 @output_file_option
-def random(size, show, output_file):
+def random(size, show, output_file, yaml_file):
     """Generate a random fractal of a given SIZE."""
 
     from .processing.random_fractal import random_fractal
     from PIL import Image
 
     fractal = random_fractal(size)
+
     with timeit("Rendering"):
         surf = fractal.render()
 
     image = Image.fromarray(surf, mode="RGB")
 
-    # if stdout is passed as output_file
-    ext = None if "." in output_file.name else "jpeg"
-    image.save(output_file, ext)
+    if output_file.name == "<stdout>":
+        # if stdout is passed as output_file
+        image.save(output_file, "jpeg")
+    else:
+        image.save(output_file)
+
+    if yaml_file:
+        yaml.dump(fractal, yaml_file)
 
     if show:
         image.show()
@@ -151,57 +167,40 @@ def random(size, show, output_file):
 @click.option("--limit", "-l", default=256, help="Max number of steps for each point.")
 @click.option("--bound", "-b", default=200_000, help="Escape Module.")
 @click.option("--julia", "-j", type=complex_type, help="Julia seed.")
-@click.option("--norm-quantiles", "-q", is_flag=True, help="Colors has the same area.")
+@click.option(
+    "--normalize-quantiles", "-q", is_flag=True, help="Colors has the same area."
+)
 @click.option("--steps-power", "-p", default=1.0, help="Enhance low or high values.")
 @click.option(
-    "--gradient",
+    "--gradient-points",
     "-g",
     type=gradient_type,
     default=("0F4152-59A07B-F7E491-EDB825-EB3615"),
     help="Dash separeted hex colors. A trailing dash loops the gradient.",
 )
 @click.option("--color-count", "-c", default=256, help="Steps in the gradient.")
-@click.option("--speed", "-s", default=1.0, help="Gradient speed.")
-@click.option("--offset", "-S", default=0.0, help="Gradient offset.")
+@click.option("--gradient-speed", "-s", default=1.0, help="Gradient speed.")
+@click.option("--gradient-offset", "-S", default=0.0, help="Gradient offset.")
 @click.option("--inside-color", "-i", type=color_type, help="Gradient offset.")
 @click.option("--dry", "-d", is_flag=True, help="Print the fractal. Don't compute.")
+@click.option(
+    "--yaml",
+    "yaml_file",
+    type=click.File(),
+    help="Get parameters from a yaml file instead.",
+)
 @output_file_option
-def gen(
-    center,
-    size,
-    zoom,
-    kind,
-    limit,
-    bound,
-    julia,
-    norm_quantiles,
-    steps_power,
-    gradient,
-    color_count,
-    speed,
-    offset,
-    inside_color,
-    dry,
-    output_file,
-):
+def gen(dry, output_file, yaml_file, **kwargs):
     """Generate a fractal image with a lot of parameters."""
 
-    camera = SimpleCamera(size, center, 3 / zoom)
-    fractal = Fractal(
-        camera=camera,
-        kind=kind,
-        limit=limit,
-        bound=bound,
-        julia=julia,
-        normalize_quantiles=norm_quantiles,
-        steps_power=steps_power,
-        gradient_points=gradient,
-        color_count=color_count,
-        gradient_loop=False,  # can set with gradient_points
-        gradient_speed=speed,
-        gradient_offset=offset,
-        inside_color=inside_color,
-    )
+    if yaml_file:
+        fractal = yaml.full_load(yaml_file)
+    else:
+        size = kwargs.pop("size")
+        center = kwargs.pop("center")
+        zoom = kwargs.pop("zoom")
+        camera = SimpleCamera(size, center, 3 / zoom)
+        fractal = Fractal(camera, **kwargs)
 
     if dry:
         print(fractal)

@@ -84,6 +84,7 @@ def random_gradient():
     try:
         result = requests.post("http://colormind.io/api/", data=data, timeout=2)
         points = result.json()["result"]
+        return points
         return list(gradient(*points, steps=1000, loop=True))
     except Exception as e:
         print(e)
@@ -106,6 +107,7 @@ def random_gradient():
             "073D52 10A8D6 F2E8DA F2903A B94C23",
             "05435F 099086 71D280 EFE84D F4B842",
         ]
+        return choice(gradients).split()
         grad = choice(gradients).split()
         print(grad)
         return list(gradient(*grad, steps=1000, loop=True))
