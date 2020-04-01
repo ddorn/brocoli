@@ -3,11 +3,11 @@
 import click
 import yaml
 
+from .TheFractalBot import bot
 from .fractal import Fractal
 from .processing import SimpleCamera, Coloration
 from .processing.colors import hex2rgb
 from .processing.compute import timeit
-
 
 yaml.add_representer(
     Coloration, lambda dumper, data: dumper.represent_scalar("!kind", data.value)
@@ -210,42 +210,7 @@ def gen(dry, output_file, yaml_file, **kwargs):
     save(image, output_file)
 
 
-@cli.command()
-@click.argument("consumer-key", envvar="TWITTER_CONSUMER_KEY")
-@click.argument("consumer-secret", envvar="TWITTER_CONSUMER_SECRET")
-@click.argument("access-key", envvar="TWITTER_ACCESS_KEY")
-@click.argument("access-secret", envvar="TWITTER_ACCESS_SECRET")
-@click.option("--comment")
-def bot(consumer_key, consumer_secret, access_key, access_secret, comment):
-    """
-    Tweet a random fractal.
-
-    All the twitter secrets can be in environment variables named
-    TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET,
-    TWITTER_ACCESS_KEY, TWITTER_ACCESS_SECRET
-    """
-
-    import tweepy
-    from .TheFractalBot import tweet_random_fractal
-
-    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-    auth.set_access_token(access_key, access_secret)
-    api = tweepy.API(auth)
-
-    try:
-        # ry to get a response from twitter
-        api.rate_limit_status()
-    except tweepy.TweepError as e:
-        # if we can't, we stop here
-        click.secho(
-            "Impossible to connect with Twitter: "
-            + e.response.json()["errors"][0]["message"],
-            fg="red",
-        )
-        quit(1)
-
-    tweet_random_fractal(api, comment)
-
+cli.add_command(bot)
 
 if __name__ == "__main__":
     cli()
