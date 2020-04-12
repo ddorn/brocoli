@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 import logging
-from random import choice, randint, randrange
+from pathlib import Path
+import random
 
 import numpy as np
 import requests
@@ -16,19 +17,21 @@ logger = logging.getLogger("brocoli")
 
 
 def random_color():
-    return randint(0, 255), randint(0, 255), randint(0, 255)
+    return random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
 
 
 def random_kind():
     # return choice([Coloration.SMOOTH_TIME, Coloration.AVG_TRIANGLE_INEQUALITY])
-    return choice([e for e in Coloration if e != Coloration.ANGLE])
+    return random.choice(
+        [e for e in Coloration if e not in (Coloration.TIME, Coloration.ANGLE)]
+    )
 
 
 def random_position():
     size = (50, 50)
     limits = 200
 
-    iterations = randint(3, 15)
+    iterations = random.randint(3, 15)
     surf = np.empty(size)
     camera = SimpleCamera(size, -0.75, 3)
 
@@ -38,7 +41,7 @@ def random_position():
         # now we find a pixel on the border and zoom there
         done = False
         while not done:
-            x, y = randrange(1, size[0] - 1), randrange(1, size[1] - 1)
+            x, y = random.randrange(1, size[0] - 1), random.randrange(1, size[1] - 1)
             if surf[x, y] < 0:
                 # we are inside, but are we on the border ?
                 for dx in (-1, 0, 1):
@@ -53,7 +56,7 @@ def random_position():
     return camera
 
 
-def random_gradient():
+def random_gradient_old():
     # grad = list(gradient('#0F4152', '#59A07B', '#F7E491', '#EDB825', '#EB3615', loop=True))
     # return grad
 
@@ -111,10 +114,17 @@ def random_gradient():
             "073D52 10A8D6 F2E8DA F2903A B94C23",
             "05435F 099086 71D280 EFE84D F4B842",
         ]
-        return choice(gradients).split()
-        grad = choice(gradients).split()
+        return random.choice(gradients).split()
+        grad = random.choice(gradients).split()
         print(grad)
         return list(gradient(*grad, steps=1000, loop=True))
+
+
+def random_gradient():
+    """Get a random gradient from the gradients file."""
+    path = Path(__file__).parent.parent / "data" / "gradients"
+    gradients = path.read_text().splitlines()
+    return random.choice(gradients).split()
 
 
 def optimal_limit(camera):
@@ -137,7 +147,9 @@ def optimal_limit(camera):
     return 2 ** n
 
 
-def random_fractal(size=(1920, 1080)):
+def random_fractal(size=(1920, 1080), seed=None):
+
+    random.seed(seed)
 
     with timeit("Finding view point"):
         camera = random_position()
@@ -153,7 +165,7 @@ def random_fractal(size=(1920, 1080)):
     not_average = kind in (Coloration.SMOOTH_TIME, Coloration.TIME)
     speed = 1 + not_average
     camera.size = size
-    bound = 2 ** randint(1, 20)
+    bound = 2 ** random.randint(1, 20)
 
     fractal = Fractal(
         camera,

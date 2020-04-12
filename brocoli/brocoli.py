@@ -171,34 +171,39 @@ def gui():
 
 @cli.command()
 @click.argument("size", type=size_type, default="1920x1080")
+@click.option("--seed", help="Seed for deterministic generation.")
 @click.option("--show", "-s", is_flag=True)
 @click.option("--yaml", "-y", "yaml_file", type=click.File("w",))
+@click.option("--dry", "-d", is_flag=True, help="Don't compute the fractal, only print")
 @output_file_option
 @verbose_option
-def random(size, show, output_file, yaml_file):
+def random(size, seed, show, output_file, yaml_file, dry):
     """Generate a random fractal of a given SIZE."""
 
     from .processing.random_fractal import random_fractal
     from PIL import Image
 
-    fractal = random_fractal(size)
-
-    with timeit("Rendering"):
-        surf = fractal.render()
-
-    image = Image.fromarray(surf, mode="RGB")
-
-    if output_file.name == "<stdout>":
-        # if stdout is passed as output_file
-        image.save(output_file, "jpeg")
-    else:
-        image.save(output_file)
+    fractal = random_fractal(size, seed=seed)
 
     if yaml_file:
         yaml.dump(fractal, yaml_file)
+    elif dry:
+        print(fractal)
 
-    if show:
-        image.show()
+    if not dry:
+        with timeit("Rendering"):
+            surf = fractal.render()
+
+        image = Image.fromarray(surf, mode="RGB")
+
+        if output_file.name == "<stdout>":
+            # if stdout is passed as output_file
+            image.save(output_file, "jpeg")
+        else:
+            image.save(output_file)
+
+        if show:
+            image.show()
 
 
 @cli.command()
