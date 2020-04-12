@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import logging
+
 import click
 import yaml
 
@@ -16,13 +18,15 @@ yaml.add_constructor(
     "!kind", lambda loader, node: Coloration(loader.construct_scalar(node))
 )
 
+logger = logging.getLogger("brocoli")
+
 
 def save(pil_image, click_file):
     """Save the image to the file and prints where it is saved. Handles stdout."""
 
     if "." in click_file.name:
         pil_image.save(click_file)
-        print(f"Saved as {click_file.name}")
+        logger.info(f"Saved as {click_file.name}")
     else:
         # if stdout is passed as file
         pil_image.save(click_file, "jpeg")
@@ -105,10 +109,47 @@ output_file_option = click.option(
 )
 
 
+def setup_logging(ctx, param, level):
+    if ctx.resilient_parsing:
+        return
+
+    logger = logging.getLogger("brocoli")
+
+    if logger.level == logging.NOTSET:
+        logger.setLevel(logging.WARNING)
+
+        # create console handler and set level to debug
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.DEBUG)
+
+        # create formatter
+        formatter = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
+
+        # add formatter to ch
+        ch.setFormatter(formatter)
+
+        # add ch to logger
+        logger.addHandler(ch)
+
+    level = [logging.WARNING, logging.INFO, 15, logging.DEBUG][min(level, 3)]
+
+    logger.setLevel(min(logger.level, level))
+
+
+verbose_option = click.option(
+    "--verbose",
+    "-v",
+    count=True,
+    callback=setup_logging,
+    expose_value=False,
+    help="Log level -v to -vvv can be passed.",
+)
+
 # ---- Definition of the command line interface ---- #
 
 
 @click.group()
+@verbose_option
 def cli():
     """A fractal generation tool by @ddorn."""
 
@@ -133,6 +174,7 @@ def gui():
 @click.option("--show", "-s", is_flag=True)
 @click.option("--yaml", "-y", "yaml_file", type=click.File("w",))
 @output_file_option
+@verbose_option
 def random(size, show, output_file, yaml_file):
     """Generate a random fractal of a given SIZE."""
 
@@ -211,6 +253,7 @@ def gen(dry, output_file, yaml_file, **kwargs):
 
 
 cli.add_command(bot)
+
 
 if __name__ == "__main__":
     cli()

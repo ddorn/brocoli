@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import logging
 from random import choice, randint, randrange
 
 import numpy as np
@@ -9,6 +10,9 @@ from .camera import SimpleCamera
 from .colors import gradient
 from .compute import Coloration, compute, timeit
 from ..fractal import Fractal
+
+
+logger = logging.getLogger("brocoli")
 
 
 def random_color():
@@ -143,7 +147,7 @@ def random_fractal(size=(1920, 1080)):
 
     with timeit("Optimal limit"):
         limit = optimal_limit(camera)
-    print("Limit:", limit)
+    logger.info("Limit: %s", limit)
 
     kind = random_kind()
     not_average = kind in (Coloration.SMOOTH_TIME, Coloration.TIME)

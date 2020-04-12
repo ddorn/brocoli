@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import logging
 from cmath import phase
 from collections import deque
 from contextlib import contextmanager
@@ -16,6 +17,8 @@ from .camera import SimpleCamera
 __all__ = ["compute", "Coloration", "ESCAPE_FUNCTIONS"]
 
 DEFAULT_BOUND = 200_000
+
+logger = logging.getLogger("brocoli")
 
 
 @njit
@@ -287,9 +290,9 @@ def compute(
 def timeit(text=""):
     t = time()
     if text:
-        print(f"{text}..." + " " * (21 - len(text)), end="", flush=True)
+        logger.info(f"{text}..." + " " * (21 - len(text)))
     yield
-    print(f"{round(time() - t, 2)}s")
+    logger.info(f"{text}..." + " " * (21 - len(text)) + f"{round(time() - t, 2)}s")
 
 
 @click.command()
