@@ -18,10 +18,13 @@ pyyaml = "^5.3.1"
 
 # A list of all of the optional dependencies, some of which are included in the
 # below `extras`. They can be opted into by apps.
-kivy = { version = "^1.1", extras = ["gui"] }
-kivymd = {version = "^0.104.0", extras = ["gui"]}
+kivy = { version = "^1.1", optional = true}
+kivymd = {version = "^0.104.0", optional = true}
 
 [tool.poetry.dev-dependencies]
+
+[tool.poetry.extras]
+gui = ["kivy", "kivymd"]
 
 
 [build-system]
