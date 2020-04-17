@@ -123,7 +123,9 @@ def random_gradient_old():
 def random_gradient():
     """Get a random gradient from the gradients file."""
     path = Path(__file__).parent.parent / "data" / "gradients"
-    gradients = path.read_text().splitlines()[1:]
+    gradients = path.read_text().splitlines()
+    # First line is a comment, we replace it
+    gradients[0] = gradients[-1]
     return random.choice(gradients).split()
 
 
