@@ -75,6 +75,6 @@ def hex2rgb(color: str):
 
     if color.lower() in colour.COLOR_NAME_TO_RGB:
         return colour.COLOR_NAME_TO_RGB[color.lower()]
-    assert len(color) == 6
+    assert len(color) == 6, color
 
     return tuple(map(lambda i: int(color[i : i + 2], 16), range(0, 6, 2)))
