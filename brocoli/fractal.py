@@ -34,6 +34,8 @@ class Fractal(yaml.YAMLObject):
     gradient_offset: float = 0.0
     inside_color: Union[None, Color] = None
 
+    # Infos
+    seed: str = None
     # For Yaml loading
     yaml_tag = "Fractal"
 

@@ -151,6 +151,7 @@ def optimal_limit(camera):
 
 def random_fractal(size=(1920, 1080), seed=None):
 
+    seed = str(seed)
     random.seed(seed)
 
     with timeit("Finding view point"):
@@ -179,6 +180,7 @@ def random_fractal(size=(1920, 1080), seed=None):
         gradient_speed=speed,
         gradient_offset=0,
         inside_color=None,
+        seed=seed,
     )
 
     return fractal
