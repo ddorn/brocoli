@@ -1,5 +1,13 @@
 from abc import ABC, abstractmethod
-from random import random, choice
+from random import random, choice, randint, randrange
+
+
+def clamp(x, mini=0, maxi=1):
+    if x < mini:
+        return mini
+    elif x > maxi:
+        return maxi
+    return x
 
 
 class GeneticAlgorithm(ABC):
@@ -34,7 +42,7 @@ class GeneticAlgorithm(ABC):
     def choose_parents(self):
         """Choose parents in the sorted population."""
         # elites_thresold = int(self.KEEP_BEST * len(graded))
-        parents_thresold = int(self.KEEP_PARENTS * len(graded))
+        parents_thresold = int(self.KEEP_PARENTS * len(self.population))
         # elites = graded[:elites_thresold]
         parents = self.population[:parents_thresold]
         return parents
@@ -47,7 +55,7 @@ class GeneticAlgorithm(ABC):
         return new
 
     def create_population(self, total):
-        return [self.random_individual() for _ in total]
+        return [self.random_individual() for _ in range(total)]
 
     def mutate_all(self, pop):
         return [self.mutate(guy) for guy in pop]
@@ -72,15 +80,32 @@ class GeneticAlgorithm(ABC):
 
 class GradientGA(GeneticAlgorithm):
     LENGTH = 4
+    MUTATION_AMPLITUDE = 0.2
 
     def random_individual(self):
-        return tuple((random(), random(), random()) for _ in range(self.LENGTH))
+        return [random() for _ in range(self.LENGTH * 3)]
 
     def crossover(self, girl, guy):
-        pass
+        sep = randrange(len(girl) // 3)
+        return girl[: sep * 3] + guy[sep * 3 :]
 
-    def mutate_one(self, girl):
-        pass
+    def mutate(self, girl):
+        idx = randrange(len(girl))
+        a = girl[idx]
+        var = (random() * 2 - 1) * self.MUTATION_AMPLITUDE
+        if idx % 3 == 0:
+            # rotate hue
+            girl[idx] = (a + var) % 1
+        else:
+            # shift saturation / value
+            girl[idx] = clamp(a + var)
+
+        return girl
 
     def judge(self, guy):
-        pass
+        return guy[0]
+
+
+if __name__ == "__main__":
+    ga = GradientGA(200)
+    ga.run(10)
