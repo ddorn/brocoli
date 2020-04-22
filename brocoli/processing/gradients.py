@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from colorsys import hsv_to_rgb
-from math import sin, cos
+from math import sin, cos, tau
 from random import random, choice, randint, randrange
 
 try:
@@ -22,8 +22,8 @@ def hsvdist(c1, c2):
     h2, s2, v2 = c2
 
     return (
-        (sin(h1) * s1 * v1 - sin(h2) * s2 * v2) ** 2
-        + (cos(h1) * s1 * v1 - cos(h2) * s2 * v2) ** 2
+        (sin(h1 * tau) * s1 * v1 - sin(h2 * tau) * s2 * v2) ** 2
+        + (cos(h1 * tau) * s1 * v1 - cos(h2 * tau) * s2 * v2) ** 2
         + (v1 - v2) ** 2
     )
 
@@ -49,6 +49,14 @@ def pretty(hsv):
     return s
 
 
+def bg(text, rgb):
+    return "\033[48;2;{};{};{}m".format(*rgb) + text
+
+
+def fg(text, rgb):
+    return "\033[38;2;{};{};{}m".format(*rgb) + text
+
+
 def gradient_str(grad, size=100):
     text = [
         "{:02}-{:02}-{:02}".format(*[int(x * 100) for x in c]) for c in itercols(grad)
@@ -59,17 +67,12 @@ def gradient_str(grad, size=100):
     text += " " * (size - len((text)))
 
     grad = [hsv_to_RGB(grad[i : i + 3]) for i in range(0, len(grad), 3)]
-    grad = gradient(*grad, steps=size)
+    grad = list(gradient(*grad, steps=size))
 
-    s = (
-        "".join(
-            "\033[48;2;{};{};{};38m\033[38;2;{r};{r};{r}m{}".format(
-                *g, c, r=0 if sum(g) > 300 else 255
-            )
-            for g, c in zip(grad, text)
-        )
-        + "\033[m"
+    s = "".join(
+        bg(fg(c, (50 if sum(g) > 300 else 200,) * 3), g) for g, c in zip(grad, text)
     )
+    s = bg("   ", grad[0]) + s + bg("   ", grad[-1]) + "\033[m"
     return s
 
 
@@ -147,7 +150,7 @@ class GradientGA(GeneticAlgorithm):
     SWAP_MUTATION = 0.2
     """Probability that a mutation swaps two colors"""
     CHANGE_MUTATION = 0.8
-    MUTATION_AMPLITUDE = 0.4
+    MUTATION_AMPLITUDE = 0.2
 
     def random_individual(self):
         return [random() for _ in range(self.LENGTH * 3)]
@@ -196,6 +199,13 @@ class GradientGA(GeneticAlgorithm):
         elif sat > 0.5:
             score += 1
 
+        # Encourage orange
+        orange = 0
+        for c in itercols(guy):
+            if 0.05 < c[0] < 0.15 and c[1] > 0.8 and c[2] > 0.85:
+                orange = max(0.05 - abs(c[0] - 0.1), orange)
+        score += orange
+
         return score
 
     def run(self, generations):
@@ -208,9 +218,9 @@ class GradientGA(GeneticAlgorithm):
 
         scores = list(map(self.judge, self.population))
         for i in reversed(range(len(self.population))):
-            print(i, scores[i], gradient_str(self.population[i]))
+            print(i, round(scores[i], 2), gradient_str(self.population[i]))
 
 
 if __name__ == "__main__":
-    ga = GradientGA(200)
-    ga.run(40)
+    ga = GradientGA(100)
+    ga.run(20)
