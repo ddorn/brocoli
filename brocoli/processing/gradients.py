@@ -11,7 +11,7 @@ except ImportError:
     from colors import gradient
 
 
-def clamp(x, mini=0, maxi=1):
+def clamp(x, mini=0.0, maxi=1.0):
     if x < mini:
         return mini
     elif x > maxi:
@@ -69,9 +69,13 @@ def fg(text, rgb):
 
 
 def gradient_str(grad, size=100, gray=False):
-    text = [
-        "{:02}-{:02}-{:02}".format(*[int(x * 100) for x in c]) for c in itercols(grad)
-    ]
+    if gray:
+        text = [str(int(100 * grayscale(g))) for g in itercols(grad)]
+    else:
+        text = [
+            "{:02}-{:02}-{:02}".format(*[int(x * 100) for x in c])
+            for c in itercols(grad)
+        ]
     total_len = sum(map(len, text))
     space = int((size - total_len) / (len(text) - 1))
     text = (" " * space).join(text)
@@ -123,7 +127,7 @@ class GeneticAlgorithm(ABC):
     def choose_parents(self):
         """Choose parents in the sorted population."""
         self.grade()
-        cum = tuple(accumulate(self.grades))
+        cum = tuple(accumulate(map(lambda x: max(0, x) ** 2, self.grades)))
 
         while True:
             r = uniform(0, cum[-1])
@@ -223,9 +227,7 @@ class GradientGA(GeneticAlgorithm):
                 dist = hsvdist(guy[i : i + 3], guy[j : j + 3])
                 similar += max(0.4 - dist ** 2, 0)
 
-                if hsvdist(guy[i : i + 3], guy[j : j + 3]) < 0.3:
-                    similar += 1
-        score += 1 - similar / length ** 2
+        score += -similar
 
         # Encourage smooth hue change
         # dist = 0
@@ -238,33 +240,33 @@ class GradientGA(GeneticAlgorithm):
         gray = [grayscale(g) for g in itercols(guy)]
         for i in range(len(gray)):
             constrast += abs(gray[i] - gray[i - 1])
-        score += max(0, constrast / length) * 2
+        score += clamp(constrast / length, 0, 0.5)
 
         # Encourage saturation
         sat = sum(guy[1::3]) / length
         if sat > 0.8:
-            score += 1.3 - sat
-        elif sat > 0.6:
+            score += 1.2 - sat
+        elif sat > 0.5:
             # .6 -> 1 and .5 or .7 -> 0.5
-            score += 1 - 5 * abs(0.7 - sat)
+            score += 1 - 4 * abs(0.65 - sat)
 
         # Encourage one orange
         orange = 0
         for c in itercols(guy):
             if 0.05 < c[0] < 0.15 and c[1] > 0.8 and c[2] > 0.85:
                 orange = max(0.05 - abs(c[0] - 0.1), orange)
-        score += orange
+        score += orange * 5
 
         # Penalise grayish colors
         grayish = 0
         for c in itercols(guy):
             if c[1] < 0.3 and c[2] < 0.3:
-                grayish += c[1] + c[2]
+                grayish += 0.6 - c[1] + c[2]
         score += 1 - grayish / length
 
-        # Penalise more low value
-        lowest = min(guy[2::3])
-        score += max(0, lowest - 0.4)
+        # Penalise too bright colors
+        value = sum(guy[2::3]) / length
+        score += 0.6 - max(0, value - 0.8) * 3
 
         return score
 
@@ -275,10 +277,20 @@ class GradientGA(GeneticAlgorithm):
                 self.grade()
                 print(f"*** Generation {self.iteration} ***")
                 for i in range(5):
-                    print(round(self.grades[i]), gradient_str(self.population[i]))
-                print("Worst:", gradient_str(self.population[-1]))
+                    print(round(self.grades[i], 2), gradient_str(self.population[i]))
+                med = len(self.population) // 2
+                print(
+                    "Median",
+                    round(self.grades[med], 2),
+                    gradient_str(self.population[med]),
+                )
+                print(
+                    "Worst:",
+                    round(self.grades[-1], 2),
+                    gradient_str(self.population[-1]),
+                )
         self.grade()
-        if show:
+        if show and False:
             for i in reversed(range(len(self.population))):
                 print(i, round(self.grades[i], 2), gradient_str(self.population[i]))
 
@@ -290,11 +302,20 @@ class GradientGA(GeneticAlgorithm):
 
 if __name__ == "__main__":
     t = time()
-    ga = GradientGA(200)
-    ga.run(10, True)
+    from random import seed as _seed
+
+    seed = str(random())
+    # seed = 0.17900896072387695
+    _seed(seed)
+
+    ga = GradientGA(50)
+    ga.run(15, True)
     print(time() - t)
 
     best = ga.population[0]
+    print(gradient_str(best))
     print(gradient_str(best, gray=True))
 
-    print(gradient_str([0, 1, 1, 0.5, 0.1, 0.8]))
+    print("\033[38;2;255;165;0m BONJOUR \033[m")
+
+    print(f"{seed=}")
