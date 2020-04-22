@@ -3,6 +3,7 @@
 <GradientTab>:
     text: "palette"
 
+    id: tab
     loop_gradient: loop_checkbox.active
     speed: gradient_speed_slider.value
     offset: gradient_offset_slider.value
@@ -37,5 +38,12 @@
         value: root.offset
 
     Widget:
-        size_hint_y: 9
+        size_hint_y: 7
+
+    MDRaisedButton:
+        text: "Random gradient"
+        on_press: tab.set_random_gradient()
+        size_hint_x: 1
+
+
 

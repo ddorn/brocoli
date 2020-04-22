@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from colorsys import hsv_to_rgb
 from math import sin, cos, tau
 from random import random, choice, randint, randrange
+from time import time
 
 try:
     from .colors import gradient
@@ -215,19 +216,26 @@ class GradientGA(GeneticAlgorithm):
 
         return score
 
-    def run(self, generations):
+    def run(self, generations, show=False):
         for _ in range(generations):
             self.evolve()
-            print(f"*** Generation {self.iteration} ***")
-            for i in range(5):
-                print(gradient_str(self.population[i]))
-            print("Worst:", gradient_str(self.population[-1]))
+            if show:
+                print(f"*** Generation {self.iteration} ***")
+                for i in range(5):
+                    print(gradient_str(self.population[i]))
+                print("Worst:", gradient_str(self.population[-1]))
 
-        scores = list(map(self.judge, self.population))
-        for i in reversed(range(len(self.population))):
-            print(i, round(scores[i], 2), gradient_str(self.population[i]))
+        if show:
+            scores = list(map(self.judge, self.population))
+            for i in reversed(range(len(self.population))):
+                print(i, round(scores[i], 2), gradient_str(self.population[i]))
+
+    def best_RGB(self):
+        return [hsv_to_RGB(c) for c in itercols(self.population[0])]
 
 
 if __name__ == "__main__":
-    ga = GradientGA(100)
-    ga.run(40)
+    t = time()
+    ga = GradientGA(50)
+    ga.run(30, True)
+    print(time() - t)

@@ -7,6 +7,7 @@ import random
 import numpy as np
 import requests
 
+from brocoli.processing.gradients import GradientGA
 from .camera import SimpleCamera
 from .colors import gradient
 from .compute import Coloration, compute, timeit
@@ -56,7 +57,7 @@ def random_position():
     return camera
 
 
-def random_gradient_old():
+def random_gradient_older():
     # grad = list(gradient('#0F4152', '#59A07B', '#F7E491', '#EDB825', '#EB3615', loop=True))
     # return grad
 
@@ -120,13 +121,19 @@ def random_gradient_old():
         return list(gradient(*grad, steps=1000, loop=True))
 
 
-def random_gradient():
+def random_gradient_old():
     """Get a random gradient from the gradients file."""
     path = Path(__file__).parent.parent / "data" / "gradients"
     gradients = path.read_text().splitlines()
     # First line is a comment, we replace it
     gradients[0] = gradients[-1]
     return random.choice(gradients).split()
+
+
+def random_gradient():
+    ga = GradientGA(50)
+    ga.run(20)
+    return ga.best_RGB()
 
 
 def optimal_limit(camera):

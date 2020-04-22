@@ -1,3 +1,4 @@
+from brocoli.processing.random_fractal import random_gradient
 from kivy.clock import Clock
 from kivy.properties import (
     ObjectProperty,
@@ -52,6 +53,9 @@ class GradientTab(MyTab):
     def do_binds(self, *args):
         self.set_components_for_change("any preproc_fractal".split())
         self.bind(on_change=self.process)
+
+    def set_random_gradient(self):
+        self.gradient = random_gradient()
 
     def process(self, *args, **kwargs):
 
