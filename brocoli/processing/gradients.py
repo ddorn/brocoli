@@ -194,17 +194,24 @@ class GradientGA(GeneticAlgorithm):
 
         # Encourage saturation
         sat = sum(guy[1::3]) / length
-        if sat > 0.7:
+        if sat > 0.8:
             score += 0.5
-        elif sat > 0.5:
+        elif sat > 0.6:
             score += 1
 
-        # Encourage orange
+        # Encourage one orange
         orange = 0
         for c in itercols(guy):
             if 0.05 < c[0] < 0.15 and c[1] > 0.8 and c[2] > 0.85:
                 orange = max(0.05 - abs(c[0] - 0.1), orange)
-        score += orange
+        score += orange * 0
+
+        # Penalise grayish colors
+        grayish = 0
+        for c in itercols(guy):
+            if c[1] < 0.3 and c[2] < 0.3:
+                grayish += c[1] + c[2]
+        score -= grayish
 
         return score
 
@@ -223,4 +230,4 @@ class GradientGA(GeneticAlgorithm):
 
 if __name__ == "__main__":
     ga = GradientGA(100)
-    ga.run(20)
+    ga.run(40)
