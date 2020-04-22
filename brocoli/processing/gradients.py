@@ -28,6 +28,11 @@ def hsvdist(c1, c2):
     )
 
 
+def itercols(grad):
+    for i in range(0, len(grad), 3):
+        yield grad[i : i + 3]
+
+
 def rgb_to_hex(rgb):
     return "#" + "".join("0" * (c < 1 / 16) + hex(int(round(c * 255)))[2:] for c in rgb)
 
@@ -44,14 +49,27 @@ def pretty(hsv):
     return s
 
 
-def gradient_str(grad):
-    return "".join(pretty(grad[i : i + 3]) for i in range(0, len(grad), 3))
+def gradient_str(grad, size=100):
+    text = [
+        "{:02}-{:02}-{:02}".format(*[int(x * 100) for x in c]) for c in itercols(grad)
+    ]
+    total_len = sum(map(len, text))
+    space = int((size - total_len) / (len(text) - 1))
+    text = (" " * space).join(text)
+    text += " " * (size - len((text)))
 
-
-def gradient_str_smooth(grad):
     grad = [hsv_to_RGB(grad[i : i + 3]) for i in range(0, len(grad), 3)]
-    grad = gradient(*grad, steps=100, loop=True)
-    s = "".join("\033[48;2;{};{};{}m \033[m".format(*g) for g in grad)
+    grad = gradient(*grad, steps=size)
+
+    s = (
+        "".join(
+            "\033[48;2;{};{};{};38m\033[38;2;{r};{r};{r}m{}".format(
+                *g, c, r=0 if sum(g) > 300 else 255
+            )
+            for g, c in zip(grad, text)
+        )
+        + "\033[m"
+    )
     return s
 
 
@@ -191,8 +209,6 @@ class GradientGA(GeneticAlgorithm):
         scores = list(map(self.judge, self.population))
         for i in reversed(range(len(self.population))):
             print(i, scores[i], gradient_str(self.population[i]))
-            if i < 10:
-                print(gradient_str_smooth(self.population[i]))
 
 
 if __name__ == "__main__":
