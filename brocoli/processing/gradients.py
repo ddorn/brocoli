@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
+from collections import namedtuple
 from colorsys import hsv_to_rgb
 from itertools import accumulate
 from math import sin, cos, tau
+from pprint import pprint
 from random import random, choice, randint, randrange, uniform
 from time import time
 
@@ -94,19 +96,20 @@ def gradient_str(grad, size=100, gray=False):
     return s
 
 
+Stats = namedtuple("Stats", ["avg", "best", "median", "worst"])
+
+
 class GeneticAlgorithm(ABC):
-    KEEP_BEST = 0.05
+    KEEP_BEST = 0.1
     """Every individual in the top KEEP_BEST 
     proportion will be taken unmodified for the next generation"""
-    KEEP_PARENTS = 0.5
-    """Every individual in the top KEEP_PARENTS proportion
-    will be used for the next generation through crossovers"""
 
     def __init__(self, population):
         self.pop_size = population
         self.population = self.create_population(population)
         self.grades = [0] * population
         self.iteration = 0
+        self.stats = []
 
     @abstractmethod
     def random_individual(self):
@@ -127,7 +130,7 @@ class GeneticAlgorithm(ABC):
     def choose_parents(self):
         """Choose parents in the sorted population."""
         self.grade()
-        cum = tuple(accumulate(map(lambda x: max(0, x) ** 2, self.grades)))
+        cum = tuple(accumulate(map(lambda x: max(0, x) ** 3, self.grades)))
 
         while True:
             r = uniform(0, cum[-1])
@@ -139,13 +142,6 @@ class GeneticAlgorithm(ABC):
         # elites_thresold = int(self.KEEP_BEST * len(graded))
         # elites = graded[:elites_thresold]
 
-    def crossover_all(self, parents):
-        new = [
-            self.crossover(choice(parents), choice(parents))
-            for _ in range(self.pop_size)
-        ]
-        return new
-
     def create_population(self, total):
         return [self.random_individual() for _ in range(total)]
 
@@ -154,9 +150,16 @@ class GeneticAlgorithm(ABC):
 
     def childrens(self):
         parents = self.choose_parents()
-        return [
-            self.crossover(next(parents), next(parents)) for _ in range(self.pop_size)
-        ]
+        elites_thresold = int(self.KEEP_BEST * len(self.grades))
+        children = self.population[:elites_thresold]
+        children.extend(
+            [
+                self.crossover(next(parents), next(parents))
+                for _ in range(self.pop_size - elites_thresold)
+            ]
+        )
+
+        return children
 
     def grade(self):
         graded = sorted(
@@ -166,18 +169,31 @@ class GeneticAlgorithm(ABC):
         self.grades = list(graded[0])
         self.population = list(graded[1])
 
-    def evolve(self):
-        children = self.childrens()
-        self.population = self.mutate_all(children)
-        self.iteration += 1
-
-    def run(self, generations):
+    def evolve(self, generations, show=False):
+        self.grade()
+        self.update_stats()
         for _ in range(generations):
-            self.evolve()
-            print(f"*** Generation {self.iteration} ***")
-            for i in range(5):
-                print("Best", i, ":", self.population[i])
-            print("Worst:", self.population[-1])
+            children = self.childrens()
+            self.population = self.mutate_all(children)
+            self.grade()
+            self.iteration += 1
+
+            if show:
+                self.update_stats()
+                self.show_generation()
+
+    def update_stats(self):
+        length = len(self.grades)
+
+        avg = sum(self.grades) / length
+        best = self.grades[0]
+        med = self.grades[length // 2]
+        worst = self.grades[-1]
+
+        self.stats.append(Stats(avg, best, med, worst))
+
+    def show_generation(self):
+        print(self.stats[-1])
 
 
 class GradientGA(GeneticAlgorithm):
@@ -186,7 +202,6 @@ class GradientGA(GeneticAlgorithm):
     """Probability that a mutation swaps two colors"""
     CHANGE_MUTATION = 0.8
     MUTATION_AMPLITUDE = 0.2
-    KEEP_PARENTS = 0.2
 
     def random_individual(self):
         return [random() for _ in range(self.LENGTH * 3)]
@@ -225,22 +240,23 @@ class GradientGA(GeneticAlgorithm):
                 if i == j:
                     continue
                 dist = hsvdist(guy[i : i + 3], guy[j : j + 3])
-                similar += max(0.4 - dist ** 2, 0)
+                similar += max(0.4 - dist, 0)
 
         score += -similar
 
-        # Encourage smooth hue change
-        # dist = 0
-        # for i in range3(guy):
-        #     dist += abs(guy[i] - guy[i - 3])
-        # score += max(0, 1 - max(0, dist - 0.2 * length) / length)
+        # Encourage small hue change
+        dist = 0
+        for i in range3(guy):
+            dist += abs(guy[i] - guy[i - 3])
+        dist /= length
+        score += 1 - clamp(dist - 0.2, 0, 0.4) * 2
 
         # Encourage contrast
         constrast = 0
         gray = [grayscale(g) for g in itercols(guy)]
         for i in range(len(gray)):
             constrast += abs(gray[i] - gray[i - 1])
-        score += clamp(constrast / length, 0, 0.5)
+        score += clamp(constrast / length, 0, 0.4)
 
         # Encourage saturation
         sat = sum(guy[1::3]) / length
@@ -255,7 +271,7 @@ class GradientGA(GeneticAlgorithm):
         for c in itercols(guy):
             if 0.05 < c[0] < 0.15 and c[1] > 0.8 and c[2] > 0.85:
                 orange = max(0.05 - abs(c[0] - 0.1), orange)
-        score += orange * 5
+        score += orange * 8
 
         # Penalise grayish colors
         grayish = 0
@@ -270,29 +286,18 @@ class GradientGA(GeneticAlgorithm):
 
         return score
 
-    def run(self, generations, show=False):
-        for _ in range(generations):
-            self.evolve()
-            if show:
-                self.grade()
-                print(f"*** Generation {self.iteration} ***")
-                for i in range(5):
-                    print(round(self.grades[i], 2), gradient_str(self.population[i]))
-                med = len(self.population) // 2
-                print(
-                    "Median",
-                    round(self.grades[med], 2),
-                    gradient_str(self.population[med]),
-                )
-                print(
-                    "Worst:",
-                    round(self.grades[-1], 2),
-                    gradient_str(self.population[-1]),
-                )
+    def show_generation(self):
         self.grade()
-        if show and False:
-            for i in reversed(range(len(self.population))):
-                print(i, round(self.grades[i], 2), gradient_str(self.population[i]))
+        print(f"*** Generation {self.iteration} ***")
+        for i in range(5):
+            print(round(self.grades[i], 2), gradient_str(self.population[i]))
+        med = len(self.population) // 2
+        print(
+            "Median", round(self.grades[med], 2), gradient_str(self.population[med]),
+        )
+        print(
+            "Worst:", round(self.grades[-1], 2), gradient_str(self.population[-1]),
+        )
 
     def best_RGB(self):
         print(gradient_str(self.population[0]))
@@ -301,21 +306,18 @@ class GradientGA(GeneticAlgorithm):
 
 
 if __name__ == "__main__":
-    t = time()
     from random import seed as _seed
 
-    seed = str(random())
-    # seed = 0.17900896072387695
-    _seed(seed)
-
     ga = GradientGA(50)
-    ga.run(15, True)
-    print(time() - t)
+    ga.evolve(15, True)
 
     best = ga.population[0]
     print(gradient_str(best))
     print(gradient_str(best, gray=True))
+    print("best:", ga.grades[0])
+    import matplotlib.pyplot as plt
 
-    print("\033[38;2;255;165;0m BONJOUR \033[m")
-
-    print(f"{seed=}")
+    for l in zip(*ga.stats):
+        plt.plot(l)
+    plt.legend("avg best median worst".split())
+    plt.show()

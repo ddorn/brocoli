@@ -132,7 +132,7 @@ def random_gradient_old():
 
 def random_gradient():
     ga = GradientGA(50)
-    ga.run(20)
+    ga.evolve(20)
     return ga.best_RGB()
 
 
