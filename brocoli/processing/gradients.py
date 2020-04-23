@@ -139,9 +139,6 @@ class GeneticAlgorithm(ABC):
                     yield self.population[i]
                     break
 
-        # elites_thresold = int(self.KEEP_BEST * len(graded))
-        # elites = graded[:elites_thresold]
-
     def create_population(self, total):
         return [self.random_individual() for _ in range(total)]
 
@@ -219,6 +216,7 @@ class GradientGA(GeneticAlgorithm):
         else:
             idx = randrange(len(girl))
             a = girl[idx]
+            # Use a gaussian variation ?
             var = (random() * 2 - 1) * self.MUTATION_AMPLITUDE
             if idx % 3 == 0:
                 # rotate hue
@@ -284,6 +282,12 @@ class GradientGA(GeneticAlgorithm):
         value = sum(guy[2::3]) / length
         score += 0.6 - max(0, value - 0.8) * 3
 
+        # Penalise complementary next to each other ?
+        # Encourage patterns ?
+        # Penalise red-green gradient ?
+        # Penalise black ?
+        # Add coefficients ?
+
         return score
 
     def show_generation(self):
@@ -300,24 +304,23 @@ class GradientGA(GeneticAlgorithm):
         )
 
     def best_RGB(self):
-        print(gradient_str(self.population[0]))
-        print(self.grades[0])
+        # print(gradient_str(self.population[0]))
+        # print(self.grades[0])
         return [hsv_to_RGB(c) for c in itercols(self.population[0])]
 
 
 if __name__ == "__main__":
-    from random import seed as _seed
 
-    ga = GradientGA(50)
-    ga.evolve(15, True)
+    for i in range(30):
+        ga = GradientGA(50)
+        ga.evolve(15)
 
-    best = ga.population[0]
-    print(gradient_str(best))
-    print(gradient_str(best, gray=True))
-    print("best:", ga.grades[0])
-    import matplotlib.pyplot as plt
+        best = ga.population[0]
+        print(gradient_str(best), ga.grades[0])
 
-    for l in zip(*ga.stats):
-        plt.plot(l)
-    plt.legend("avg best median worst".split())
-    plt.show()
+    # import matplotlib.pyplot as plt
+    #
+    # for l in zip(*ga.stats):
+    #     plt.plot(l)
+    # plt.legend("avg best median worst".split())
+    # plt.show()
