@@ -131,6 +131,7 @@ def random_gradient_old():
 
 
 def random_gradient():
+    return random_gradient_old()
     ga = GradientGA(50)
     ga.evolve(20)
     return ga.best_RGB()
