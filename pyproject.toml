@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "brocoli"
-version = "0.3.0"
+version = "0.3.1"
 description = "{random, gui, cli} fractal generator"
 authors = ["ddorn <diego.dorn@free.fr>"]
 license = "MIT"
