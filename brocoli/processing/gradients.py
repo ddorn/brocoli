@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from collections import namedtuple
-from colorsys import hsv_to_rgb
+from colorsys import hsv_to_rgb, rgb_to_hsv
+from functools import cmp_to_key
 from itertools import accumulate
 from math import sin, cos, tau
 from pprint import pprint
@@ -43,6 +44,11 @@ def itercols(grad):
 
 def rgb_to_hex(rgb):
     return "#" + "".join("0" * (c < 1 / 16) + hex(int(round(c * 255)))[2:] for c in rgb)
+
+
+def hex_to_rgb(hex):
+    hex = hex.strip("# ")
+    return [int(hex[i : i + 2], 16) / 255 for i in range(0, 6, 2)]
 
 
 def hsv_to_RGB(hsv):
@@ -258,12 +264,12 @@ class GradientGA(GeneticAlgorithm):
 
         # Encourage saturation
         sat = sum(guy[1::3]) / length
-        if sat > 0.8:
-            score += 1.2 - sat
+        if sat > 0.85:
+            sat = 1.5 - sat
         elif sat > 0.5:
             # .6 -> 1 and .5 or .7 -> 0.5
-            score += 1 - 4 * abs(0.65 - sat)
-
+            sat = 1.2 - 4 * abs(0.7 - sat)
+        score += sat
         # Encourage one orange
         orange = 0
         for c in itercols(guy):
@@ -310,16 +316,50 @@ class GradientGA(GeneticAlgorithm):
 
 
 if __name__ == "__main__":
+    print(
+        "List of nice gradients according to my and my GA <!--suppress CssInvalidPropertyValue --><style>* {background: linear-gradient"
+    )
+    with open("../data/gradients") as f:
+        gradients = f.readlines()[1:]
+    gradients = set(map(str.strip, gradients))
 
-    for i in range(30):
-        ga = GradientGA(50)
-        ga.evolve(15)
+    gradients = [
+        tuple(x for c in g.split() for x in rgb_to_hsv(*hex_to_rgb(c)))
+        for g in gradients
+    ]
 
-        best = ga.population[0]
-        print(gradient_str(best), ga.grades[0])
+    ga = GradientGA(0)
+    ga.population = gradients
+    # ga.population = [g for g in gradients if len(g) == 3 * 3]
+    ga.grade()
+    ga.pop_size = len(ga.population)
+    # ga.grade()
+    # ga.evolve(1, True)
+    # for g in rgb_grads:
+    #     print(g)
+    for g in ga.population:
+        # print(gradient_str(g), ga.judge(g))
+        print(*[rgb_to_hex(hsv_to_rgb(*c)) for c in itercols(g)])
+    # print(len(ga.population))
+    #
+    # print(len(ga.population))
+
+    # for g in gradients[-10:]:
+    #     print(gradient_str(g), GradientGA.judge(g))
+
+    # for i in range(30):
+    #     ga = GradientGA(50)
+    #     ga.evolve(15)
+    #
+    #     best = ga.population[0]
+    #     print(gradient_str(best), ga.grades[0])
 
     # import matplotlib.pyplot as plt
+
     #
+    # plt.plot(ga.grades)
+    # plt.show()
+
     # for l in zip(*ga.stats):
     #     plt.plot(l)
     # plt.legend("avg best median worst".split())
