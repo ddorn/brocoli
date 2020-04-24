@@ -11,7 +11,7 @@ except FileNotFoundError:
 
 setup(
     name="brocoli",
-    version="0.0.1",
+    version="0.3.2",
     packages=["brocoli"],
     url="https://github.com/ddorn/brocoli",
     license="MIT",
