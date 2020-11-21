@@ -1,0 +1,11 @@
+{ pkgs? import <nixpkgs> {}, ... }:
+with pkgs;
+let 
+  pythonEnv = pkgs.poetry2nix.mkPoetryEnv {
+    projectDir = ./.;
+  };
+in pkgs.mkShell {
+  buildInputs = [ pythonEnv ];
+
+  PYTHONPATH = ".";
+}

@@ -29,27 +29,35 @@ def random_kind():
 
 
 def random_position():
+
+    # Size of the small image that we draw
     size = (50, 50)
+    surf = np.empty(size)
     limits = 200
 
-    iterations = random.randint(3, 15)
-    surf = np.empty(size)
+    # The starting viewpoint contains the full mandelbrot set
     camera = SimpleCamera(size, -0.75, 3)
 
+    # Number of times to zoom on a random point of the border
+    iterations = random.randint(3, 15)
     for i in range(iterations):
+        # Draw a small image of the set
         compute(camera, Coloration.TIME, out=surf, limit=limits)
 
         # now we find a pixel on the border and zoom there
-        done = False
-        while not done:
+        found = False
+        while not found:
+            # Pick a random index
             x, y = random.randrange(1, size[0] - 1), random.randrange(1, size[1] - 1)
+
             if surf[x, y] < 0:
                 # we are inside, but are we on the border ?
                 for dx in (-1, 0, 1):
                     for dy in (-1, 0, 1):
                         # one of the neighbors is not in the set
                         if surf[x + dx, y + dy] > 0:
-                            done = True
+                            found = True
+        # Zoom x3 with on the pixel found
         camera.center = camera.complex_at((x, y))
         camera.height /= 3
     camera.height *= 3
