@@ -1,0 +1,15 @@
+default:
+  image: nixpkgs/nix-flakes
+
+before_script:
+  - mkdir -p /etc/nix
+  - echo "experimental-features = nix-command flakes ca-references" >> /etc/nix/nix.conf
+
+stages:
+  - build
+
+build:
+  stage: build
+  needs: []
+  script:
+    - nix -L build ".#packages.x86_64-linux.brocoli"
