@@ -39,17 +39,10 @@
           kivy = pkgs.python3Packages.kivy;
           kivymd = pkgs.kivymd;
           numba = pkgs.python3Packages.numba;
+          tweepy = pkgs.python3Packages.tweepy;
 
           colour = super.colour.overridePythonAttrs (old: {
             buildInputs = old.buildInputs ++ [ self.d2to1 ];
-          });
-
-          tweepy = super.tweepy.overridePythonAttrs (old: {
-            propagatedBuildInputs = old.propagatedBuildInputs ++ [
-              self.pysocks
-              self.requests
-              self.six
-            ];
           });
         });
 
@@ -88,8 +81,7 @@
           };
         };
 
-        brocoli = final.poetry2nix.mkPoetryApplication (poetryArgs final) // {
-        };
+        brocoli = final.poetry2nix.mkPoetryApplication (poetryArgs final);
       };
     }
     (eachDefaultSystem (system:
