@@ -6,20 +6,22 @@ authors = ["ddorn <diego.dorn@free.fr>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.7"
-numba = "^0.48.0"
-tweepy = "^3.8.0"
-numpy = "^1.18.2"
-click = "^7.1.1"
-pillow = "^7.1.1"
-colour = "^0.1.5"
-pyyaml = "^5.3.1"
+python = "^3.8"
+numba = "==0.51.1"
+tweepy = "*"
+click = "*"
+colour = "*"
+pyyaml = "*"
 
+# Provided by existing dependencies, so let's use those to avoid conflicting
+# versions in nix build
+# numpy = "*"
+# pillow = "*"
 
 # A list of all of the optional dependencies, some of which are included in the
 # below `extras`. They can be opted into by apps.
-kivy = { version = "^1.1", optional = true}
-kivymd = {version = "^0.104.0", optional = true}
+kivy = { version = "*", optional = true, allow-prereleases = true }
+kivymd = { version = "*", optional = true }
 
 [tool.poetry.dev-dependencies]
 

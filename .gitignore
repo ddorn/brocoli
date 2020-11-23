@@ -1,3 +1,4 @@
+/result*
 *.npy
 .idea
 random_fractal_tw.jpg
