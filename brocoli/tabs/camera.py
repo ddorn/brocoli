@@ -6,6 +6,7 @@ from kivy.properties import (
     BooleanProperty,
     ReferenceListProperty,
 )
+from kivymd.uix.menu import MDDropdownMenu
 
 from .dispatcher_extension import EventDispatcherExtension
 from .base import MyTab
@@ -47,15 +48,13 @@ class CameraTab(MyTab):
         super().__init__(**kwargs)
         self.saved_camera = SimpleCamera((2, 2))
 
-        self.kind_items = [
-            {"viewclass": "MDMenuItem", "text": col.value, "callback": self.set_kind,}
-            for col in Coloration
-        ]
         # self.process()
         Clock.schedule_once(self.finish_init)
 
     def set_kind(self, kind, *args):
-        self.kind = Coloration(kind)
+        # Here kind is the widget clicked
+        self.kind = Coloration(kind.text)
+        # self.coloration_menu.caller=self.ids.coloration_drop_down,
 
     def set_camera_pov(self, center, height):
         with self.camera:
@@ -82,6 +81,18 @@ class CameraTab(MyTab):
         )
         self.camera.bind(on_change=self.dispatch_change)
         self.bind(on_change=self.process)
+
+        kind_items = [
+            {"viewclass": "MDMenuItem", "text": col.value}
+            for col in Coloration
+        ]
+        self.coloration_menu = MDDropdownMenu(
+                caller=self.ids.coloration_drop_down,
+                position="bottom",
+                items=kind_items,
+                width_mult=4,
+                callback=self.set_kind,
+            )
 
     def process(self, *args, **kwargs):
         """

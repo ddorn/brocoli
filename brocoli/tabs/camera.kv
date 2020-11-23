@@ -52,11 +52,12 @@
             value: root.bound
 
         MDFillRoundFlatIconButton:
+            id: coloration_drop_down
             pos_hint: {"center_x": .5}
             icon: 'chevron-down'
             text: "Coloration"
             size_hint_x: 0.9
-            on_release: MDDropdownMenu(items=root.kind_items, width_mult=3).open(self)
+            on_release: root.coloration_menu.open()
 
         Label:
             # For better spacing
