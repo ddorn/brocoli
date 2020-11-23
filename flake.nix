@@ -82,6 +82,13 @@
         };
 
         brocoli = final.poetry2nix.mkPoetryApplication (poetryArgs final);
+
+        brocoli-docker = final.dockerTools.buildLayeredImage {
+          name = "brocoli";
+          config = {
+            Cmd = [ "${final.brocoli}/bin/brocoli" ];
+          };
+        };
       };
     }
     (eachDefaultSystem (system:
@@ -98,7 +105,7 @@
         };
 
         packages = {
-          inherit (pkgs) brocoli kivymd;
+          inherit (pkgs) brocoli brocoli-docker kivymd;
         };
         defaultPackage = self.packages.${system}.brocoli;
       }
