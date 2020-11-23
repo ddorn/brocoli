@@ -1,15 +1,42 @@
-default:
-  image: nixpkgs/nix-flakes
-
-before_script:
-  - mkdir -p /etc/nix
-  - echo "experimental-features = nix-command flakes ca-references" >> /etc/nix/nix.conf
-
 stages:
   - build
+  - deploy
 
 build:
+  image: nixpkgs/nix-flakes
   stage: build
   needs: []
+  before_script:
+    - mkdir -p /etc/nix
+    - echo "experimental-features = nix-command flakes ca-references" >> /etc/nix/nix.conf
   script:
     - nix -L build ".#packages.x86_64-linux.brocoli"
+    - nix -L build ".#packages.x86_64-linux.brocoli-docker"
+    - cp result brocoli-docker.tar.gz
+  artifacts:
+    when: on_success
+    paths:
+      - brocoli-docker.tar.gz
+
+services:
+  - docker:19.03.1-dind
+
+variables:
+  # Use TLS https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#tls-enabled
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_TLS_CERTDIR: "/certs"
+
+publish:
+  image: docker:19.03.1
+  stage: deploy
+  needs:
+    - build
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker pull $CI_REGISTRY_IMAGE:latest || true
+    - docker load < brocoli-docker.tar.gz
+    - docker tag "$(docker image ls --format "{{.ID}}" | head -n1)" $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - docker tag "$(docker image ls --format "{{.ID}}" | head -n1)" $CI_REGISTRY_IMAGE:latest
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - docker push $CI_REGISTRY_IMAGE:latest
