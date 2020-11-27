@@ -4,6 +4,7 @@
     text: "file-document-edit"
 
     steps_power: steps_power_slider.value
+    bins: bins_slider.value
     normalize_quantiles: quantiles_checkbox.active
 
 
@@ -13,6 +14,14 @@
         MDCheckbox:
             id: quantiles_checkbox
             active: root.normalize_quantiles
+
+    LabeledSlider:
+        text: "Bins"
+        id: bins_slider
+        min: 1
+        max: 10
+        step: 1
+        value: root.bins
 
     LabeledSlider:
         text: "Steps power"

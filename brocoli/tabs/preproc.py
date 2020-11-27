@@ -6,19 +6,16 @@ from kivy.properties import (
     ObjectProperty,
 )
 
-from ..processing.preprocess import (
-    normalize_quantiles,
-    signed_normalize_ip,
-    signed_power,
-)
+from ..processing.preprocess import preprocess
 from .base import MyTab
 
 
 class PreprocTab(MyTab):
+    bins = NumericProperty(1)
     steps_power = NumericProperty(1)
     normalize_quantiles = BooleanProperty()
 
-    any = ReferenceListProperty(steps_power, normalize_quantiles)
+    any = ReferenceListProperty(bins, steps_power, normalize_quantiles)
 
     fractal = ObjectProperty(force_dispatch=True, allownone=True)
     preproc_fractal = ObjectProperty(force_dispatch=True, allownone=True)
@@ -41,6 +38,7 @@ class PreprocTab(MyTab):
         # if no keyword, cache the fractal it is the one for the view
         cache = kwargs.pop("cache", len(kwargs) == 0)
         fractal = kwargs.pop("fractal", self.fractal)
+        bins = kwargs.pop("bins", self.bins)
         norm_quantiles = kwargs.pop("normalize_quantiles", self.normalize_quantiles)
         steps_power = kwargs.pop("steps_power", self.steps_power)
 
@@ -55,15 +53,12 @@ class PreprocTab(MyTab):
 
         fractal = fractal.copy()
 
-        if norm_quantiles:
-            fractal = normalize_quantiles(fractal, 1000)
-
-        if steps_power not in (0, 1):
-            # signed power
-            fractal = signed_power(fractal, steps_power)
-
-        # put fractal between -1 and 1
-        signed_normalize_ip(fractal)
+        fractal = preprocess(
+                fractal,
+                bins=bins,
+                norm_quantiles=norm_quantiles,
+                steps_power=steps_power
+            )
 
         if cache:
             self.preproc_fractal = fractal

@@ -206,6 +206,8 @@ def random(size, seed, show, output_file, yaml_file, dry):
             image.show()
 
 
+# TODO: Add bins
+
 @cli.command()
 @click.argument("center", type=complex_type, default=-0.75 + 0j)
 @click.option("--size", "-x", type=size_type, default="1920x1080")

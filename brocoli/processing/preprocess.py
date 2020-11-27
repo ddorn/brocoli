@@ -25,6 +25,40 @@ def normalize_quantiles(surf, nb, exclude_inside=True):
     return new.reshape(surf.shape)
 
 
+def do_bins(surf, nb):
+    """
+    Modify the array such that [nb] parts have the same size and the same range.
+
+    Preserves the order (ie surf[x] < surf[y] => f(surf)[x] < f(surf)[y]).
+    Example:
+        bins(surf, 2) maps half of the surface to [0, 1] and the other half to [1, 2].
+    """
+
+    assert nb >= 1
+
+    inside = (surf < 0)
+
+    values = np.sort(surf[~inside].flatten())
+
+    if values.size < nb + 1:
+        return surf  # less values than bins
+
+    indices = (np.linspace(0, 1, nb+1, endpoint=True) * values.size).astype(int)
+    indices[-1] -= 1  # We want the last value in the array
+    boundaries = values[indices]
+    zero = boundaries.searchsorted(0, "right")
+    print(zero)
+
+    new = surf.copy()
+    last = boundaries[0]
+    for part, bound in enumerate(boundaries[1:]):
+        mask = (last <= surf) & (surf <= bound)
+        new[mask] = part - zero + (surf[mask] - last) / (bound - last)
+        last = bound
+
+    return new.reshape(surf.shape)
+
+
 def signed_normalize_ip(fractal, speed=1.0, offset=0.0):
     """
     Normalize a fractal and keep the the sign of each value.
@@ -75,7 +109,7 @@ def signed_power(fractal, power):
     return abs(fractal) ** power * np.sign(fractal)
 
 
-def preprocess(fractal, norm_quantiles=False, steps_power=1):
+def preprocess(fractal, bins=1, norm_quantiles=False, steps_power=1):
     """
     Normalise the values of the fractal before coloration.
 
@@ -83,11 +117,15 @@ def preprocess(fractal, norm_quantiles=False, steps_power=1):
     This is a function from R^(mn) to [-1, -1]^(mn). This keeps
     the sign of the inputs.
 
+    :param bins_: apply bins with the corresponding number (>=1)
     :param norm_quantiles: whether to apply normalize_quantiles()
     :param steps_power: raise the fractal to a given power, to emphasis
         on low or high escape times
     :return:
     """
+
+    if bins > 1:
+        fractal = do_bins(fractal, bins)
 
     if norm_quantiles:
         fractal = normalize_quantiles(fractal, 1000)
@@ -96,3 +134,14 @@ def preprocess(fractal, norm_quantiles=False, steps_power=1):
         fractal = signed_power(fractal, steps_power)
 
     return signed_normalize_ip(fractal)
+
+
+if __name__ == "__main__":
+    a = np.array(range(12), dtype=float).reshape((3, 4))
+    a[1] = [1, 1.1, 1.2, 1.4]
+
+    print(a)
+
+    print(do_bins(a, 2))
+
+

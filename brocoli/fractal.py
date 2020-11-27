@@ -26,6 +26,7 @@ class Fractal(yaml.YAMLObject):
     # pre-processing
     normalize_quantiles: bool = False
     steps_power: float = 1.0
+    bins: int = 1
     # Colors
     gradient_points: List[Color] = (BLACK, WHITE)
     color_count: int = 1000
@@ -43,7 +44,7 @@ class Fractal(yaml.YAMLObject):
         fractal = compute(
             self.camera, self.kind, limit=self.limit, bound=self.bound, julia=self.julia
         )
-        fractal = preprocess(fractal, self.normalize_quantiles, self.steps_power)
+        fractal = preprocess(fractal, self.bins, self.normalize_quantiles, self.steps_power)
         fractal = colorize(
             fractal,
             self.gradient_points,
@@ -72,6 +73,7 @@ class Fractal(yaml.YAMLObject):
             julia=self.julia,
             normalize_quantiles=self.normalize_quantiles,
             steps_power=self.steps_power,
+            bins=self.bins,
             gradient_points=[to_hex(c) for c in self.gradient_points],
             color_count=self.color_count,
             gradient_loop=self.gradient_loop,  # can set with gradient_points

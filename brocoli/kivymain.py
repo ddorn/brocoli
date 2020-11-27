@@ -77,6 +77,7 @@ class Brocoli(Widget):
                     self.camera_tab.kind = random_kind()
                     is_time = self.camera_tab.kind == Coloration.SMOOTH_TIME
                 self.preproc_tab.normalize_quantiles = is_time
+                self.preproc_tab.bins = 2
             self.gradient_tab.speed = 1 + is_time
             self.gradient_tab.offset = 0
             self.gradient_tab.gradient = random_gradient()
