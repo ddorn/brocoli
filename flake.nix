@@ -86,7 +86,6 @@
         brocoli-docker = final.dockerTools.buildLayeredImage {
           name = "brocoli";
           config = {
-            Cmd = [ "${final.brocoli}/bin/brocoli" ];
             Entrypoint = "${final.brocoli}/bin/brocoli";
           };
         };
