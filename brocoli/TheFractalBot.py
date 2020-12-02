@@ -41,9 +41,10 @@ def tweet_fractal(fractal, api, comment="", image=None):
 
     # Tweet
 
-    bytes = BytesIO()
-    image.save(bytes, "jpeg")
-    tweet = api.update_with_media("random_fractal.jpg", text, file=bytes)
+    filename = "random_fractal.jpg"
+    image.save(filename, "jpeg")
+    media = api.media_upload(filename)
+    tweet = api.update_status(text, media_ids=[media.media_id])
 
     if comment:
         # it doesn't fit beneath the fractal description
@@ -63,7 +64,6 @@ def bot(ctx):
 @click.argument("consumer-key", envvar="TWITTER_CONSUMER_KEY")
 @click.argument("consumer-secret", envvar="TWITTER_CONSUMER_SECRET")
 @click.argument("access-key", envvar="TWITTER_ACCESS_KEY")
-@click.argument("access-secret", envvar="TWITTER_ACCESS_SECRET")
 @click.argument("access-secret", envvar="TWITTER_ACCESS_SECRET")
 @click.option("--comment")
 @click.pass_context
