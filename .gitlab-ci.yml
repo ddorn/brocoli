@@ -34,7 +34,6 @@ publish:
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
-    - docker pull $CI_REGISTRY_IMAGE:latest || true
     - docker load < brocoli-docker.tar.gz
     - docker tag "$(docker image ls --format "{{.ID}}" | head -n1)" $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - docker tag "$(docker image ls --format "{{.ID}}" | head -n1)" $CI_REGISTRY_IMAGE:latest
