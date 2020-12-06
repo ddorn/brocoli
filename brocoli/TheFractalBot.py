@@ -56,6 +56,7 @@ def tweet_fractal(fractal, api, comment="", image=None):
 def bot(ctx):
     ctx.obj = {}
     fractal = random_fractal()
+    print(fractal)
     ctx.obj["fractal"] = fractal
     ctx.obj["image"] = fractal.render(True)
 

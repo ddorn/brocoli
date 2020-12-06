@@ -3,6 +3,7 @@
 import logging
 from pathlib import Path
 import random
+from time import time
 
 import numpy as np
 import requests
@@ -166,6 +167,9 @@ def optimal_limit(camera):
 
 
 def random_fractal(size=(1920, 1080), seed=None):
+
+    if seed is None:
+        seed = time()
 
     seed = str(seed)
     random.seed(seed)
